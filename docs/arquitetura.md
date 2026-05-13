@@ -7,7 +7,7 @@ Este documento descreve a arquitetura de software do projeto RpDesk, um motor de
 ## 1. Visão Geral: Casos de Uso
 O diagrama de Casos de Uso mapeia as interações do Jogador/Diretor com o Sistema/Engine.
 
-![Diagrama de Casos de Uso](./uml/diagrama-casos-uso.png)
+![Diagrama de Casos de Uso](./uml/diagrama-casos-uso.pdf)
 
 As interações principais englobam a gestão de recursos e o desencadeamento de rotinas automatizadas pelo motor:
 * **Gestão e Preparação:** O jogador atua ativamente para Gerenciar a Guilda, Formar Equipe, Gerenciar Inventário e Equipamentos, além de Recrutar/Demitir Heróis.
@@ -19,7 +19,7 @@ As interações principais englobam a gestão de recursos e o desencadeamento de
 ## 2. Visão Estática: Diagrama de Classes
 A fundação do sistema é baseada em responsabilidades restritas (SOLID) e forte proteção de dados (Encapsulamento).
 
-![Diagrama de Classes](./uml/diagrama-classes.png)
+![Diagrama de Classes](./uml/diagrama-classes.pdf)
 
 ### Núcleo do Sistema (Core)
 * **`GameController`**: Mantém as instâncias do `GerenciadorDeTempo`, `GameState` e `SaveManager`, conduzindo o loop principal do jogo.
@@ -43,7 +43,7 @@ Os diagramas abaixo ilustram como as classes colaboram durante as operações ma
 ### 3.1. Passagem de Tempo e Recrutamento
 Descreve a atualização do cenário do jogo ao final de um turno. O padrão *Factory* é importante ao instanciar personagens sem acoplar a lógica na controladora.
 
-![Sequência: Passagem de Tempo](./uml/diag-sequencia-tempo.png)
+![Sequência: Passagem de Tempo](./uml/diag-sequencia-tempo.pdf)
 1. O `GameController` comanda o avanço chamando `avancar_dia()`.
 2. O `GerenciadorDeTempo` notifica globalmente o "NovoDiaIniciado".
 3. A `Taverna`, previamente inscrita, reage acionando `gerar_pool_recrutamento()`.
@@ -52,7 +52,7 @@ Descreve a atualização do cenário do jogo ao final de um turno. O padrão *Fa
 ### 3.2. Orquestração de Expedição
 Demonstra o uso de Injeção de Dependências. A missão não instancia sua própria lógica de conflito; ela recebe o motor de fora, mantendo seu propósito restrito a gerenciar o mapa e relatar o fim da viagem.
 
-![Sequência: Início de Expedição](./uml/diag-sequencia-expedicao.png)
+![Sequência: Início de Expedição](./uml/diag-sequencia-expedicao.pdf)
 1. O `GameController` solicita à `Guilda` a formação da `Equipe`.
 2. O controlador invoca a `Missao` e injeta a `equipe` e o `motor_de_combate`.
 3. A `Missao` itera sobre seu `_mapa_encontros`. Quando detecta combate, cede controle temporário, invocando `rodar_turno()` do motor.
@@ -61,7 +61,7 @@ Demonstra o uso de Injeção de Dependências. A missão não instancia sua pró
 ### 3.3. Ciclo de Combate e Resolução de Dano
 O gargalo lógico do projeto. Aplica Polimorfismo distribuído (quem toma as decisões são as entidades) e uma arquitetura baseada em eventos para reações automatizadas de itens.
 
-![Sequência: Ciclo de Combate](./uml/diag-sequencia-combate.png)
+![Sequência: Ciclo de Combate](./uml/diag-sequencia-combate.pdf)
 1. No início da Fila de Iniciativa, o `MotorDeCombate` exige a intenção polimórfica com `decidir_acao(contexto)`.
 2. Se a entidade for um Herói com `TracoPersonalidade`, ele usa `avaliar_situacao` para enviar um modificador de decisão e estruturar o retorno.
 3. O motor calcula e aplica `receber_dano(valor)` aos `Atributos (Alvo)`.
@@ -71,7 +71,7 @@ O gargalo lógico do projeto. Aplica Polimorfismo distribuído (quem toma as dec
 ### 3.4. Persistência de Dados (Save/Load)
 Evidencia a delegação de responsabilidades na conversão de memória para disco.
 
-![Sequência: Processo de Save](./uml/diag-sequencia-save.png)
+![Sequência: Processo de Save](./uml/diag-sequencia-save.pdf)
 1. Ativado por `salvar_jogo(estado_atual)`, o `SaveManager` exige os dados em cascata invocando `get_estado_para_save()` no `GameState`.
 2. O `GameState` delega as partes específicas: chama `serializar()` na `Guilda`, que converte seus atributos locais e a lista de heróis em dicionário.
 3. O `GameState` empacota tudo e entrega ao `SaveManager`.
