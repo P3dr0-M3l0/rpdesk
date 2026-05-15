@@ -22,32 +22,41 @@ class FabricaDeHerois():
         tracos_heroi = self.__gerar_tracos()
         event_manager_heroi = self.event_manager
         
-        Heroi(id_heroi, nome_heroi, atributos_heroi, inventario_heroi, tracos_heroi, event_manager_heroi)
+        heroi = Heroi(
+            id_heroi,
+            nome_heroi,
+            atributos_heroi,
+            inventario_heroi,
+            event_manager_heroi,
+            tracos_heroi
+            )
         
+        return heroi
+
         
     def __gerar_atributos(self):
         
         # FORCA
         max = 30
-        attr_forca = random(0, max)
+        attr_forca = random.randint(0, max)
         
         # DESTREZA
         max = 30
-        attr_destreza = random(0, max)
+        attr_destreza = random.randint(0, max)
         
         # INTELIGENCIA
         max = 0
-        attr_inteligencia = random(0, max)
+        attr_inteligencia = random.randint(0, max)
         
         # VELOCIDADE
         max = 0
-        attr_velocidade = random(0, max)
+        attr_velocidade = random.randint(0, max)
         
         # HP_MAX
         max = 50
-        attr_hp_max = random(0, max)
+        attr_hp_max = random.randint(0, max)
         
-        ConjuntoDeAtributos(
+        atributos = ConjuntoDeAtributos(
             attr_forca,
             attr_destreza,
             attr_inteligencia,
@@ -55,6 +64,8 @@ class FabricaDeHerois():
             attr_hp_max,
             self.event_manager
             )
+        
+        return atributos
         
         
     def __gerar_inventario(self):

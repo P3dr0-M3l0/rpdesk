@@ -8,31 +8,35 @@ class Heroi(Entidade):
         self.__lista_tracos = lista_tracos
         
         
-        def __decidir_acao(self, contexto): # Ainda é necessário definir a lógica
-            
-            dict_acao = {
-                "alvo": 0,
-                "ataque": 0
-            }
-            
-            return dict_acao
-
+    def __decidir_acao(self, contexto): # Ainda é necessário definir a lógica
         
-        # Adicionar verificação
-        def adicionar_traco(self, traco_personalidade):
-            
-            self.__lista_tracos.append(traco_personalidade)
-
-
-        def equipar_item(self, slot, item):
-            ...
+        dict_acao = {
+            "alvo": 0,
+            "ataque": 0
+        }
+        
+        return dict_acao
+    
+    
+    def receber_dano(self, qntd, fonte):
+        
+        super().receber_dano(qntd, fonte)
         
         
-        def receber_dano(self, qntd, fonte):
-            
-            super().receber_dano(self, qntd, fonte)
-            
-            
-        def curar(self):
-            
-            super().curar
+    def curar(self):
+        
+        super().curar()
+    
+    
+    # Adicionar verificação
+    def adicionar_traco(self, traco_personalidade):
+
+        self.__lista_tracos.append(traco_personalidade)
+
+
+    def equipar_item(self, slot, item):
+        ...
+
+
+    def morrer(self):
+        super().morrer()

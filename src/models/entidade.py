@@ -1,4 +1,3 @@
-# from conjunto_atributos import ConjuntoDeAtributos
 from abc import ABC, abstractmethod
 
 
@@ -13,10 +12,12 @@ class Entidade(ABC):
         self._vivo = True
 
         # Inscrição no evento de "morte"
-        self._event_manager.inscrever(f"morrer_{self._id}", self.__del__)
+        # Futuramente, essa inscrição ativará um método da classe "Equipe" ou "Guilda"
+        # Que será responsável por apagar o objeto
+        self._event_manager.inscrever(f"morrer_{self._id}", None)
         
         # Inscrição no evento "receber dano"
-        self._event_manager.inscrever(f"printar_dano_recebido_{self._id}")
+        self._event_manager.inscrever(f"dano_recebido_{self._id}", None)
 
 
     @abstractmethod
@@ -24,14 +25,29 @@ class Entidade(ABC):
         pass
     
     
+    def verificar_defesa_itens(self):
+        
+        # Verificar os itens de defesa no inventário
+        
+        # Retorna o número da defesa total
+        ...
+    
+    
     def receber_dano(self, qtnd, fonte):
         
-        dano_recebido = self._atributos.calcular_defesa(qtnd)
+        defesa = self.verificar_defesa_itens(qtnd)
+        qntd_temp = qtnd - defesa if qtnd - defesa > 0 else 0
         
+        defesa += self._atributos.verificar_defesa_attr(qntd_temp)
+        
+        dano_recebido = qtnd - defesa if qtnd - defesa > 0 else 0
+        
+        # Essa variável hp_atual é local desse método e não interfere na variável 
+        # privada do ConjuntoDeAtributos
         hp_atual = self._atributos.receber_dano(dano_recebido)
         
         self._event_manager.emitir_evento(
-            f"printar_dano_recebido_{self._id}"
+            f"dano_recebido_{self._id}"
             # ,
             # {
             #     'dano': dano_recebido,
@@ -40,14 +56,20 @@ class Entidade(ABC):
             )
         
         if hp_atual == 0:
-            self.__del__()
+            self.morrer()
         
         
     def curar(self):
+        
+        # Implementar com Item PocaoDeCura
+        
         ...
         
         
-    def __del__(self):
+    def morrer(self):
         
+        self._vivo = False
         self._event_manager.emitir_evento(f"morrer_{self._id}")
         self._event_manager.desinscrever(f"morrer_{self._id}")
+        self._event_manager.desinscrever(f"dano_recebido_{self._id}")
+    

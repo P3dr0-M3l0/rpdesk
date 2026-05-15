@@ -12,7 +12,8 @@ class ConjuntoDeAtributos():
         self.__hp_atual = hp_max
         self.__event_manager = event_manager
 
-
+    # GETTERS -----------------------------------------------------------
+    
     # FORCA
     @property
     def forca(self):
@@ -43,11 +44,15 @@ class ConjuntoDeAtributos():
     def hp_atual(self):
         return self.__hp_atual
 
-        
-    def calcular_defesa(self, valor):
-        ...
+    # --------------------------------------------------------------------------
 
+    def calcular_defesa_attr(self):
         
+        # Verificar a defesa a partir dos atributos, como destreza
+        
+        ...
+    
+    
     def receber_dano(self, valor):
         
         self.__hp_atual -= valor
@@ -55,3 +60,11 @@ class ConjuntoDeAtributos():
             self.__hp_atual = 0
             
         return self.hp_atual
+    
+    
+    def aplicar_buff_temporario(self, str_atributo, valor):
+        ...
+        
+        
+    def calcular_modificador(self, str_atributo):
+        ...
