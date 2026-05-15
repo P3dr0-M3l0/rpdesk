@@ -1,8 +1,9 @@
 class EventManager:
 
-    def __init__(self, inscricoes):
+    def __init__(self):
         
-        self.inscricoes = inscricoes
+        self.inscricoes = {
+        }
 
 
     def inscrever(self, evento, callback):
@@ -18,7 +19,7 @@ class EventManager:
         self.inscricoes.pop(evento)
         
 
-    def emitir_evento(self, evento, dados):
+    def emitir_evento(self, evento, dados=None):
 
         func = self.inscricoes.get(evento, None)
         if func == None:
@@ -28,7 +29,7 @@ class EventManager:
 # ----------------------------------------------------
 
 if __name__ == '__main__':
-    event_manager = EventManager({})
+    event_manager = EventManager()
 
     def somar(a, b):
         print(a)
@@ -37,6 +38,7 @@ if __name__ == '__main__':
 
     print('Inscrevendo somar')
     event_manager.inscrever('soma', somar)
+    print(event_manager.inscricoes)
     print(event_manager.emitir_evento('soma', {'a': 10, 'b': 20}))
     print('Desinscrever')
     event_manager.desinscrever('soma')

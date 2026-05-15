@@ -3,28 +3,15 @@ from core.event_manager import EventManager
 
 class ConjuntoDeAtributos():
 
-    def __init__(self, forca, destreza, inteligencia, velocidade, hp_max):
+    def __init__(self, forca, destreza, inteligencia, velocidade, hp_max, event_manager):
         self.__forca = forca
         self.__destreza = destreza
         self.__inteligencia = inteligencia
         self.__velocidade = velocidade
         self.__hp_max = hp_max
         self.__hp_atual = hp_max
-        
-        
-        
+        self.__event_manager = event_manager
 
-    @staticmethod
-    def __verificar_valor(valor, min, max):
-        try:
-            valor = int(valor)
-        except ValueError:
-            raise ValueError("ERRO: Entrada não é um número")
-        
-        if valor >= min and valor <= max:
-            return valor
-        else:
-            raise ValueError("ERRO: Valor fora da faixa")
 
     # FORCA
     @property
@@ -55,9 +42,16 @@ class ConjuntoDeAtributos():
     @property
     def hp_atual(self):
         return self.__hp_atual
+
         
+    def calcular_defesa(self, valor):
+        ...
+
         
     def receber_dano(self, valor):
+        
         self.__hp_atual -= valor
         if self.__hp_atual < 0:
             self.__hp_atual = 0
+            
+        return self.hp_atual
