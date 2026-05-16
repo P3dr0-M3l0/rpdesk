@@ -2,57 +2,38 @@ class EventManager:
 
     def __init__(self):
         
-        self.inscricoes = {
+        self.__inscricoes = {
         }
 
 
-    def inscrever(self, evento, lista_callback):
+    def inscrever(self, evento, callback):
 
-        if type(lista_callback) != "<class 'list'>":
-            lista = []
-            lista.append(lista_callback)
-            lista_callback = lista
+        if not evento in self.__inscricoes:
+            self.__inscricoes[evento] = []
 
-        if evento in self.inscricoes:
-            self.inscricoes[evento].extend(lista_callback)
-        else:
-            self.inscricoes[evento] = lista_callback
+        self.__inscricoes[evento].append(callback)
 
 
-    def desinscrever(self, evento):
+    def desinscrever(self, evento, callback):
 
-        if not evento in self.inscricoes:
+        if not evento in self.__inscricoes:
             raise Exception("ERRO: Evento não existe e não pode ser descadastrado")
 
-        self.inscricoes.pop(evento)
+        if callback in self.__inscricoes[evento]:
+            self.__inscricoes[evento].remove(callback)
+        else:
+            raise Exception("ERRO: O 'callback' não está presente na lista desse 'evento'")
         
 
-    def emitir_evento(self, evento, dados=None):
+    def emitir_evento(self, evento, dados = None):
 
-        lista_func = self.inscricoes.get(evento, None)
-        if lista_func == None:
-            raise Exception('ERRO: Evento não possui callback')
-        for func in lista_func:
-            if func == None:
-                raise Exception('ERRO: Evento não está cadastrado')
+        lista_callbacks = self.__inscricoes.get(evento)
+        
+        if lista_callbacks == None:
+            return
+        
+        for func in lista_callbacks:
             if dados == None:
                 func()
             else:
                 func(**dados)
-
-# ----------------------------------------------------
-
-if __name__ == '__main__':
-    event_manager = EventManager()
-
-    def somar(a, b):
-        print(a)
-        print(b)
-        return a+b
-
-    print('Inscrevendo somar')
-    event_manager.inscrever('soma', somar)
-    print(event_manager.inscricoes)
-    print(event_manager.emitir_evento('soma', {'a': 10, 'b': 20}))
-    print('Desinscrever')
-    event_manager.desinscrever('soma')

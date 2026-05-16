@@ -47,12 +47,11 @@ class Entidade(ABC):
         hp_atual = self._atributos.receber_dano(dano_recebido)
         
         self._event_manager.emitir_evento(
-            f"dano_recebido_{self._id}"
-            # ,
-            # {
-            #     'dano': dano_recebido,
-            #     'fonte': fonte
-            # }
+            f"dano_recebido",
+            {
+                'dano': dano_recebido,
+                'fonte': fonte
+            }
             )
         
         if hp_atual == 0:
@@ -69,7 +68,5 @@ class Entidade(ABC):
     def morrer(self):
         
         self._vivo = False
-        self._event_manager.emitir_evento(f"morrer_{self._id}")
-        self._event_manager.desinscrever(f"morrer_{self._id}")
-        self._event_manager.desinscrever(f"dano_recebido_{self._id}")
+        self._event_manager.emitir_evento("morrer", {"id_morto": self._id})
     
