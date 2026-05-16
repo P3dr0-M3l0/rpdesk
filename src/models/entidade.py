@@ -11,14 +11,6 @@ class Entidade(ABC):
         self._event_manager = event_manager
         self._vivo = True
 
-        # Inscrição no evento de "morte"
-        # Futuramente, essa inscrição ativará um método da classe "Equipe" ou "Guilda"
-        # Que será responsável por apagar o objeto
-        self._event_manager.inscrever(f"morrer_{self._id}", None)
-        
-        # Inscrição no evento "receber dano"
-        self._event_manager.inscrever(f"dano_recebido_{self._id}", None)
-
 
     @abstractmethod
     def decidir_acao(self, contexto):

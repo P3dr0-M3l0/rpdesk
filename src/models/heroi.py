@@ -1,4 +1,4 @@
-from entidade import Entidade
+from models.entidade import Entidade
 
 
 class Heroi(Entidade):
@@ -8,7 +8,7 @@ class Heroi(Entidade):
         self.__lista_tracos = lista_tracos
         
         
-    def __decidir_acao(self, contexto): # Ainda é necessário definir a lógica
+    def decidir_acao(self, contexto): # Ainda é necessário definir a lógica
         
         dict_acao = {
             "alvo": 0,
