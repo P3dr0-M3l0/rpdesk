@@ -1,4 +1,4 @@
-import pytest
+import pytest # type: ignore
 from src.models.conjunto_atributos import ConjuntoDeAtributos
 
 # Mock simples do EventManager para injeção
