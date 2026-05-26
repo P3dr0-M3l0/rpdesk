@@ -1,5 +1,5 @@
-from models.conjunto_atributos import ConjuntoDeAtributos
-from models.heroi import Heroi
+from entidades.conjunto_atributos import ConjuntoDeAtributos
+from entidades.heroi import Heroi
 from uuid import uuid4
 import random
 

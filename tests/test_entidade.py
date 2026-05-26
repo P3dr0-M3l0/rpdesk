@@ -1,5 +1,5 @@
 import pytest
-from src.models.entidade import Entidade
+from src.entidades.entidade import Entidade
 
 class MockEventManager:
     def __init__(self):

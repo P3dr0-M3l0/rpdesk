@@ -1,5 +1,5 @@
 import pytest
-from models.heroi import Heroi
+from entidades.heroi import Heroi
 from factories.fabrica_heroi import FabricaDeHerois
 from core.event_manager import EventManager
 

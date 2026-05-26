@@ -1,4 +1,4 @@
-from models.entidade import Entidade
+from entidades.entidade import Entidade
 
 
 class Heroi(Entidade):

@@ -1,5 +1,5 @@
 import pytest # type: ignore
-from src.models.conjunto_atributos import ConjuntoDeAtributos
+from src.entidades.conjunto_atributos import ConjuntoDeAtributos
 
 # Mock simples do EventManager para injeção
 class MockEventManager:
