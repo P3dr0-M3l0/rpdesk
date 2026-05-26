@@ -7,6 +7,11 @@ class GerenciadorDeTempo():
         
     def avancar_dia(self):
         
-        self.__game_state.dia_atual += 1
+        temp = self.__game_state.dia_atual
+        self.__game_state.incrementar_dia()
+        
+        if temp == self.__game_state.dia_atual:
+            raise ValueError("Erro: Não foi possível avançar o dia")
+            return 
         
         self.__event_manager.emitir_evento("avancar_dia")
