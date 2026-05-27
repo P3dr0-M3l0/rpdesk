@@ -61,10 +61,19 @@ class ConjuntoDeAtributos():
             
         return self.hp_atual
     
-    
     def aplicar_buff_temporario(self, str_atributo, valor):
         ...
-        
-        
+            
     def calcular_modificador(self, str_atributo):
         ...
+
+    def serializar(self):
+        dicionario_conjunto_attr = {
+            'AT_forca'        : self.__forca,
+            'AT_destreza'     : self.__destreza,
+            'AT_inteligencia' : self.__inteligencia,
+            'AT_velocidade'   : self.__velocidade,
+            'AT_hp_max'       : self.__hp_max,
+            'AT_hp_atual'     : self.__hp_atual
+        }
+        return dicionario_conjunto_attr
