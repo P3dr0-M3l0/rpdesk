@@ -9,9 +9,9 @@ class Item(ABC):
         
     
     @abstractmethod 
-    def usar():
+    def usar(self):
         pass
     
     @abstractmethod
-    def serializar():
+    def serializar(self):
         pass
