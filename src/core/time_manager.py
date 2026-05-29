@@ -14,4 +14,4 @@ class GerenciadorDeTempo():
             raise ValueError("Erro: Não foi possível avançar o dia")
             return 
         
-        self.__event_manager.emitir_evento("avancar_dia")
+        self.__event_manager.emitir_evento("novo_dia")
