@@ -3,11 +3,12 @@ from abc import ABC, abstractmethod
 
 class Entidade(ABC):
     
-    def __init__(self, id, nome, atributos, inventario, event_manager):
+    def __init__(self, id, nome, atributos, inventario, slots_equipados, event_manager):
         self._id = id
         self._nome = nome
         self._atributos = atributos
         self._inventario = inventario
+        self._slots_equipados = slots_equipados
         self._event_manager = event_manager
         self._vivo = True
 
@@ -16,14 +17,31 @@ class Entidade(ABC):
     def decidir_acao(self, contexto):
         pass
     
+    # Equipamento -----------------------------------------
+    def equipar_item(self, slot, item):
+        ...
+        
+    def desequipar_item(self, slot, item):
+        ...
     
+    # Gerenciamento de Inventário -------------------------
+    def adicionar_item(self, item):
+        if not self._inventario.adicionar_item(item):
+            print("\n--= Inventário cheio! =--\n")
+            return False
+        return True
+ 
+    def remover_item(self, item):
+        n_item = self._inventario.remover_item(item)
+        return n_item
+    
+    # Ações de batalha ------------------------------------
     def verificar_defesa_itens(self):
         
-        # Verificar os itens de defesa no inventário
+        # Verificar os itens de defesa equipados
         
         # Retorna o número da defesa total
         ...
-    
     
     def receber_dano(self, qtnd, fonte):
         
@@ -45,17 +63,14 @@ class Entidade(ABC):
                 'fonte': fonte
             }
             )
-        
         if hp_atual == 0:
             self.morrer()
-        
         
     def curar(self):
         
         # Implementar com Item PocaoDeCura
         
         ...
-        
         
     def morrer(self):
         
