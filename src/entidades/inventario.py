@@ -25,16 +25,10 @@ fora do intervalo  0 < x <= 20''')
     def remover_item(self, item):
         if item not in self.__lista_itens:
             raise Exception("Erro: Item para ser removido não foi encontrado")
-        
         self.__lista_itens.remove(item)
-        
-        if item in self.__lista_itens:
-            raise Exception("Erro: O item não foi removido corretamente do inventário")
-        
         return item
     
     def serializar(self):
-        
         itens_serializados = []
         for item in self.__lista_itens:
             itens_serializados.append(item.serializar())
