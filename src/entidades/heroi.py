@@ -7,7 +7,8 @@ class Heroi(Entidade):
         super().__init__(id, nome, atributos, inventario, slots_equipados, event_manager)
         self.__lista_tracos = lista_tracos
         
-        
+    
+    # Lógica de combate -----------------------------------
     def decidir_acao(self, contexto): # Ainda é necessário definir a lógica
         
         dict_acao = {
@@ -29,12 +30,21 @@ class Heroi(Entidade):
     def adicionar_traco(self, traco_personalidade):
         self.__lista_tracos.append(traco_personalidade)
 
+    # Equipamentos ----------------------------------------
     def equipar_item(self, slot, item):
         return super().equipar_item(slot, item)
         
     def desequipar_item(self, slot, item):
         return super().desequipar_item(slot, item)
-
+    
+    # Gerenciamento de inventário -------------------------
+    def adicionar_item(self, item):
+        return super().adicionar_item(item)
+    
+    def remover_item(self, item):
+        return super().remover_item(item)
+    
+    # Para save -------------------------------------------
     def serializar(self):
         tracos_serializados = []
         for traco in self.__lista_tracos:
