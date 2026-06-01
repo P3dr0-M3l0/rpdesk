@@ -2,7 +2,8 @@ from equipe import Equipe
 
 
 class Guilda():
-    def __init__(self, ouro, reputacao, roster_herois, equipes_ativas, inventario_guilda):
+    def __init__(self, nome, ouro, reputacao, roster_herois, equipes_ativas, inventario_guilda):
+        self.__nome = nome
         self.__ouro = ouro
         self.__reputacao = reputacao
         self.__roster_herois = roster_herois # lista de HEROIS disponiveis para EQUIPES
@@ -13,6 +14,10 @@ class Guilda():
     # =====================================================
     # Getter e Setters ------------------------------------
     # =====================================================        
+    @property
+    def nome(self):
+        return self.__nome
+    
     @property
     def ouro(self):
         return self.__ouro
