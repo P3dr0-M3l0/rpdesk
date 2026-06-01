@@ -9,7 +9,7 @@ class Taverna:
         return self.__herois_disponiveis
         
     def inicializar_hooks(self):
-        self.__event_manager.inscrever('novo_dia', self.__renovar_herois)    
+        self.__event_manager.inscrever('novo_dia', self.renovar_herois)    
     
     def remover_heroi_comprado(self, heroi):
         if heroi not in self.__herois_disponiveis:
@@ -19,9 +19,10 @@ class Taverna:
             raise Exception("Erro: O herói não foi corretamente removido da vitrine")
         return heroi
     
-    def __renovar_herois(self):
-        for i in range(len(self.__herois_disponiveis)):
-            self.__herois_disponiveis.pop(i)
+    def renovar_herois(self):
+        if self.__herois_disponiveis != []:
+            for i in range(len(self.__herois_disponiveis)):
+                self.__herois_disponiveis.pop(i)
 
         if self.__herois_disponiveis != []:
             raise Exception("Erro: Os heróis não foram removidos corretamente da vitrinni")        
