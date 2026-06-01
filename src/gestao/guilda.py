@@ -10,6 +10,27 @@ class Guilda():
         self.__inventario_guilda = inventario_guilda # objeto do tipo Inventario
 
 
+    # =====================================================
+    # Getter e Setters ------------------------------------
+    # =====================================================        
+    @property
+    def ouro(self):
+        return self.__ouro
+    
+    @ouro.setter
+    def ouro(self, valor):
+        if valor <= 0:
+            raise ValueError("Não é possível ter uma quantidade negativa de ouro... ainda")
+        self.__ouro = valor
+        
+    @property
+    def reputacao(self):
+        return self.__reputacao
+    
+    @reputacao.setter
+    def reputacao(self, valor):
+        self.__reputacao = valor
+
     # ===============================================
     # Gestão ----------------------------------------
     # ===============================================
