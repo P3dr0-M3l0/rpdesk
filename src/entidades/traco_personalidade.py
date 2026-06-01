@@ -8,6 +8,14 @@ class TracoPersonalidade(ABC):
         self._heroi_dono = heroi_dono
 
 
+    @property
+    def nome(self):
+        return self._nome
+    
+    @property
+    def descricao(self):
+        return self._descricao
+
     @abstractmethod
     def inicializar_hooks(self, event_manager):
         pass
