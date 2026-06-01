@@ -2,8 +2,9 @@ from abc import ABC, abstractmethod
 
 
 class TracoPersonalidade(ABC):
-    def __init__(self, nome, heroi_dono):
+    def __init__(self, nome:str, descricao:str, heroi_dono):
         self._nome = nome
+        self._descricao = descricao
         self._heroi_dono = heroi_dono
 
 
