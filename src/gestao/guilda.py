@@ -90,6 +90,7 @@ class Guilda():
             equipes_serializadas.append(equipe.serializar())
 
         dicionario_guilda = {
+            'GU_nome'             : self.__nome,
             'GU_ouro'             : self.__ouro,
             'GU_reputacao'        : self.__reputacao,
             'GU_roster_herois'    : roster_serializado,
