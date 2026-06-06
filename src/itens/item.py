@@ -6,7 +6,19 @@ class Item(ABC):
         self._id = id
         self._nome = nome
         self._valor = valor
-        
+
+
+    @property
+    def id(self):
+        return self._id
+    
+    @property
+    def nome(self):
+        return self._nome
+    
+    @property
+    def valor(self):
+        return self.valor
     
     @abstractmethod 
     def usar(self):
