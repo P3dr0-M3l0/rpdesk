@@ -22,6 +22,10 @@ class Equipamento(Item, ABC):
         return super().valor
     
     @property
+    def slot(self):
+        return self._slot
+    
+    @property
     def modificador(self):
         return self._modificador
 
