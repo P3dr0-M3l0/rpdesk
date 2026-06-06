@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from modificador import Modificador
 
 
 class Entidade(ABC):
@@ -18,11 +19,41 @@ class Entidade(ABC):
         pass
     
     # Equipamento -----------------------------------------
-    def equipar_item(self, slot, item):
-        ...
+    def equipar_item(self, slot: str, item):
+        self._slots_equipados[slot] = item
         
-    def desequipar_item(self, slot, item):
-        ...
+        atributo_modificar = item.modificador[0]
+        valor_modificar = item.modificador[1]
+        tipo_modificar =  item.modificador[2]
+        
+        modificador = Modificador(item.id, valor_modificar, tipo_modificar)
+        
+        if atributo_modificar == "forca":
+            self._atributos.forca.adicionar_modificador(modificador)
+        elif atributo_modificar == "destreza":
+            self._atributos.destreza.adicionar_modificador(modificador)
+        elif atributo_modificar == "inteligencia":
+            self._atributos.inteligencia.adicionar_modificador(modificador)
+        elif atributo_modificar == "velocidade":
+            self._atributos.velocidade.adicionar_modificador(modificador)
+        elif atributo_modificar == "hp_max":
+            self._atributos.hp_max.adicionar_modificador(modificador)
+        
+    def desequipar_item(self, slot: str):
+        item = self._slots_equipados.pop(slot)
+        
+        atributo_modificado = item.modificador[0]
+        
+        if atributo_modificado == "forca":
+            self._atributos.forca.remover_modificadores_por_origem(item.id)
+        elif atributo_modificado == "destreza":
+            self._atributos.destreza.remover_modificadores_por_origem(item.id)
+        elif atributo_modificado == "inteligencia":
+            self._atributos.inteligencia.remover_modificadores_por_origem(item.id)
+        elif atributo_modificado == "velocidade":
+            self._atributos.velocidade.remover_modificadores_por_origem(item.id)
+        elif atributo_modificado == "hp_max":
+            self._atributos.hp_max.remover_modificadores_por_origem(item.id)
     
     # Gerenciamento de Inventário -------------------------
     def adicionar_item(self, item):
