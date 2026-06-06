@@ -8,6 +8,10 @@ class Inventario():
     def lista_itens(self):
         return self.__lista_itens
     
+    @property
+    def capacidade_max(self):
+        return self.__capacidade_max
+    
     def definir_capacidade(self, valor):
         if valor <= 0 or valor > 20:
             raise Exception('''Erro: Não é possível criar um inventário com capacidade
