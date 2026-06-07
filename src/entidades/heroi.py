@@ -13,6 +13,10 @@ class Heroi(Entidade):
     # Getters e Setters -----------------------------------
     # =====================================================
     @property
+    def id(self):
+        return self._id
+    
+    @property
     def nome(self):
         return self._nome
     
@@ -25,6 +29,10 @@ class Heroi(Entidade):
         return self._inventario
     
     @property
+    def slots_equipados(self):
+        return self._slots_equipados
+    
+    @property
     def lista_tracos(self):
         return self.__lista_tracos
     
@@ -35,7 +43,7 @@ class Heroi(Entidade):
     @valor.setter
     def valor(self, n):
         if n < 0:
-            raise ValueError("O heróis não pode ter um valor negativo")
+            raise ValueError("O herói não pode ter um valor negativo")
         self.__valor = n
     
     # =====================================================
