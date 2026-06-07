@@ -20,6 +20,12 @@ class Entidade(ABC):
     
     # Equipamento -----------------------------------------
     def equipar_item(self, slot: str, item):
+        self._inventario.remover_item(item)
+        
+        if slot in self._slots_equipados:
+            self._inventario.adicionar_item(item)
+            return False
+        
         self._slots_equipados[slot] = item
         
         atributo_modificar = item.modificador[0]
@@ -38,9 +44,14 @@ class Entidade(ABC):
             self._atributos.velocidade.adicionar_modificador(modificador)
         elif atributo_modificar == "hp_max":
             self._atributos.hp_max.adicionar_modificador(modificador)
+        return True
         
     def desequipar_item(self, slot: str):
         item = self._slots_equipados.pop(slot)
+        
+        if not self._inventario.adicionar_item(item):
+            self._slots_equipados[slot] = item
+            return False
         
         atributo_modificado = item.modificador[0]
         
@@ -54,6 +65,7 @@ class Entidade(ABC):
             self._atributos.velocidade.remover_modificadores_por_origem(item.id)
         elif atributo_modificado == "hp_max":
             self._atributos.hp_max.remover_modificadores_por_origem(item.id)
+        return True
     
     # Gerenciamento de Inventário -------------------------
     def adicionar_item(self, item):
