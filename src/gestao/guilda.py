@@ -1,7 +1,7 @@
 from equipe import Equipe
 
 
-class Guilda():
+class Guilda:
     def __init__(self, nome, ouro, reputacao, roster_herois, equipes_ativas, inventario_guilda):
         self.__nome = nome
         self.__ouro = ouro
@@ -35,17 +35,40 @@ class Guilda():
     @reputacao.setter
     def reputacao(self, valor):
         self.__reputacao = valor
+        
+    @property
+    def roster_herois(self):
+        return self.__roster_herois
+    
+    @property
+    def equipes_ativas(self):
+        return self.__equipes_ativas
+    
+    @property
+    def inventario_guilda(self):
+        return self.__inventario_guilda
 
     # ===============================================
     # Gestão ----------------------------------------
     # ===============================================
+    def remover_heroi_roster(self, heroi):
+        if heroi not in self.__roster_herois:
+            raise Exception("Erro: O herói a ser removido não está no roster")
+        self.__roster_herois.remove(heroi)
+        return heroi
+
+    def adicionar_heroi_roster(self, heroi):
+        if heroi in self.__roster_herois:
+            return
+        self.__roster_herois.append(heroi)
+
     def contratar_heroi(self, heroi, custo):
         if custo <= self.__ouro:
             self.__ouro -= custo
             self.__roster_herois.append(heroi)
             return True
         return False
-
+    
     def formar_equipe(self, nome, list_herois):
         equipe = Equipe(
             nome = nome,
@@ -54,6 +77,7 @@ class Guilda():
         )
         for heroi in list_herois:
             self.__roster_herois.remove(heroi)
+        self.__equipes_ativas.append(equipe)
         return equipe
 
     # ===============================================
@@ -63,7 +87,6 @@ class Guilda():
         n_item = heroi.remover_item(item)
         if not self.__inventario_guilda.adicionar_item(n_item):
             heroi.adicionar_item(n_item)
-            print("O baú da guilda está cheio")
             return False
         return True
 
