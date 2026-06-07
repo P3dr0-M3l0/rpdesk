@@ -2,11 +2,23 @@ from src.entidades.heroi import Heroi
 
 
 class Equipe():
-    def __init__(self, nome, membros, limite_membros):
+    def __init__(self, nome: str, membros, limite_membros: int):
         self.__nome = nome
-        self.__membros = membros
+        self.__membros = membros # lista de heróis
         self.__limite_membros = limite_membros
 
+
+    @property
+    def nome(self):
+        return self.__nome
+    
+    @property
+    def membros(self):
+        return self.__membros
+    
+    @property
+    def limite_membros(self):
+        return self.__limite_membros
 
     @property    
     def obter_membros_vivos(self):
@@ -25,7 +37,7 @@ class Equipe():
         else:
             raise TypeError("Erro: Um objeto diferente de 'Herói' está sendo adicionado a uma equipe")
         
-    def retirar_membro(self, membro):
+    def remover_membro(self, membro):
         if membro not in self.__membros:
             raise Exception("Erro: Não é possível retirar um membro não presente na equipe")
         self.__membros.remove(membro)
