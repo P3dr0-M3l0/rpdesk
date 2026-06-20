@@ -62,11 +62,6 @@ class GameController:
            Opção 1: Ir para a Taverna
            Opção 2: Gerenciar Equipes e Heróis
            Opção 3: Abrir o Baú da Guilda
-           - Lista todos os itens guardados no inventário central.
-           - Permite transferir itens do baú para a mochila de um herói selecionado.
-           - Permite transferir itens da mochila de um herói para o baú.
-           - Retorna ao Menu da Guilda.
-           
            Opção 4: Ir para a Batalha (Expedições)
            - Solicita a seleção de uma Equipe previamente formada.
            - Solicita a escolha do mapa/missão (define os inimigos).
@@ -171,10 +166,10 @@ class GameController:
         self.hud_global()
         
         print("> “Como vamos organizar os heróis hoje, senhor?”")
-        print("   1. Listar Heróis disponíveis para alocação")
-        print("   2. Editar equipes existentes")
-        print("   3. Criar equipe nova")
-        print("   0. Voltar ao menu anterior")
+        print("    1. Listar Heróis disponíveis para alocação")
+        print("    2. Editar equipes existentes")
+        print("    3. Criar equipe nova")
+        print("    0. Voltar ao menu anterior")
         escolha = input("> ")
 
         while True:
@@ -262,8 +257,9 @@ class GameController:
                 
         while True:
             print("\n> “O que deseja fazer?”")
-            print("\n   1. Equipar item ao Héroi\n   2. Desequipar item\n", end="")
-            print("   3. Mover item do herói para o baú da guilda\n   0. Voltar ao menu anterior")
+            print("\n    1. Equipar item ao Héroi\n    2. Desequipar item")
+            print("    3. Mover item do herói para o baú da guilda")
+            print("    0. Voltar ao menu anterior")
             escolha = input("\n> ")
 
             if escolha == '1':
@@ -411,7 +407,104 @@ class GameController:
                 break
             else:
                 print("> “Temo que essa não seja uma opção válida, senhor”")
-    
+                
+    def menu_bau(self, guilda):
+        """
+        Opção 3: Abrir o Baú da Guilda
+           - Lista todos os itens guardados no inventário central.
+           - Permite transferir itens do baú para a mochila de um herói selecionado.
+           - Permite transferir itens da mochila de um herói para o baú.
+           - Retorna ao Menu da Guilda.
+        """
+        self.hud_global()
+        
+        print(f"\n-== Inventário da Guilda: {guilda.nome} ==-\n")
+        
+        bau = guilda.inventario_guilda
+        for i in range(len(bau.lista_itens)):
+            item = bau[i]
+            if isinstance(item, Equipamento):
+                print(f"{i+1}. {item.nome}-{item.modificador[0]}/{item.modificador[1]}/{item.modificador[2]}-{item.valor}")
+            elif isinstance(item, Consumivel):
+                print(f"{i+1}. {item.nome}-{item.valor}")
+        print("\n===------------------------------------------------------------------------------===")
+        
+        if len(bau) == 0:
+            print("\n> “Parece que o nosso baú está vazio, não há muito o que fazer aqui!”")
+            print("*Para sair, pressione qualquer botão*")
+            input("> ")
+            return
+        
+        print("\n> “Que tranqueira! Mas pelo menos é nossa tranqueira”")
+        while True:
+            print("    1. Transferir item do baú para um herói")
+            print("    2. Voltar ao menu anterior")
+            escolha = input("> ")
+            
+            if escolha == '1':
+                # Escolhendo o item
+                print("> “Digite o número do item que deseja transferir”")
+                try:
+                    n_item = int(input("> "))
+                except TypeError:
+                    print("> “Isso não é um número, chefe”")
+                    print("===------------------------------------------------------------------------------===")
+                    continue
+                if (n_item-1) not in range(len(bau.listar_itens)):
+                    print("> “Não consegui achar isso no baú, tente de novo, por favor”")
+                    print("===------------------------------------------------------------------------------===")
+                    continue
+                
+                # Escolhendo o herói
+                roster = guilda.roster_herois
+                herois_equipes = []
+                for equipe in guilda.equipes_ativas:
+                    herois_equipes += equipe.membros
+                herois = roster + herois_equipes
+                
+                print("\n")
+                for i, heroi in enumerate(herois, 1):
+                    atributos = heroi.atributos
+                    inventario = heroi.inventario
+                    print(f"{i}. {heroi.nome}:")
+                    print("    - Atributos: ", end='')
+                    print(f"V:{atributos.valor_hp_max}/F:{atributos.valor_forca}/", end='')
+                    print(f"D:{atributos.valor_destreza}/V:{atributos.valor_velocidade}/", end='')
+                    print(f"I:{atributos.valor_inteligencia}")
+                    print(f"    - Itens: ", end='')
+                    for item in inventario.lista_itens:
+                        if isinstance(item, Equipamento):
+                            print(f"{item.nome}-{item.slot}/", end='')
+                        elif isinstance(item, Consumivel):
+                            print(f"{item.nome}/", end='')
+                    print("---\n")
+                
+                print("> “Digite o número do herói que quer transferir o item”")
+                try:
+                    n_heroi = int(input("> "))
+                except TypeError:
+                    print("> “Isso não é um número, chefe”")
+                    print("===------------------------------------------------------------------------------===")
+                    continue
+                if (n_heroi-1) not in range(len(herois)):
+                    print("> “Ué, acho que não temos esse herói! Tente novamente”")
+                    print("===------------------------------------------------------------------------------===")
+                    continue
+                temp = bau.remover_item(bau.lista_itens[n_item-1])
+                if not herois[n_heroi-1].adicionar_item(temp):
+                    bau.adicionar_item(temp)
+                    print("> “Tente outro herói!”")
+                    print("===------------------------------------------------------------------------------===")
+                    continue
+                print("> “Transferência realizada com sucesso!”")
+                print("===------------------------------------------------------------------------------===")
+                
+            elif escolha == '2':
+                break
+            else:
+                print("> “Não me parece que essa escolha estava nas opções”")
+            
+            
     # =====================================================
     # Auxiliares ------------------------------------------
     # =====================================================
