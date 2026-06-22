@@ -10,6 +10,12 @@ class Atributo:
     @property
     def valor_base(self):
         return self.__valor_base
+    
+    @valor_base.setter
+    def valor_base(self, valor:int):
+        if not isinstance(valor, int):
+            raise TypeError("Erro: Valor deve ser um inteiro")
+        self.__valor_base = valor
 
     @property
     def valor_total(self):

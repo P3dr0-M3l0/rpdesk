@@ -1,15 +1,42 @@
 from core.event_manager import EventManager
+from atributo import Atributo
 
 
 class ConjuntoDeAtributos():
 
-    def __init__(self, forca, destreza, inteligencia, velocidade, hp_max, event_manager):
-        self.__forca = forca
-        self.__destreza = destreza
-        self.__inteligencia = inteligencia
-        self.__velocidade = velocidade
-        self.__hp_max = hp_max
-        self.__hp_atual = hp_max
+    def __init__(self, forca, destreza, inteligencia, velocidade, hp_max, event_manager, hp_atual=None):
+        if isinstance(forca, Atributo):
+            self.__forca = forca
+        else:
+            self.__forca = Atributo(forca, [])
+
+        if isinstance(destreza, Atributo):
+            self.__destreza = destreza
+        else:
+            self.__destreza = Atributo(destreza, [])
+
+        if isinstance(inteligencia, Atributo):
+            self.__inteligencia = inteligencia
+        else:
+            self.__inteligencia = Atributo(inteligencia, [])
+
+        if isinstance(velocidade, Atributo):
+            self.__velocidade = velocidade
+        else:
+            self.__velocidade = Atributo(velocidade, [])
+
+        if isinstance(hp_max, Atributo):
+            self.__hp_max = hp_max
+        else:
+            self.__hp_max = Atributo(hp_max, [])
+
+        if hp_atual == None:
+            self.__hp_atual = Atributo(self.hp_max.valor_total, [])
+        elif isinstance(hp_atual, Atributo):
+            self.__hp_atual = hp_atual
+        else:
+            self.__hp_atual = Atributo(hp_atual, [])
+
         self.__event_manager = event_manager
 
     # ===============================================
@@ -77,11 +104,11 @@ class ConjuntoDeAtributos():
     
     def receber_dano(self, valor):
         
-        self.__hp_atual -= valor
-        if self.__hp_atual < 0:
-            self.__hp_atual = 0
+        self.__hp_atual.valor_base -= valor
+        if self.__hp_atual.valor_base < 0:
+            self.__hp_atual.valor_base = 0
             
-        return self.hp_atual
+        return self.valor_hp_atual
     
     def aplicar_buff_temporario(self, str_atributo, modificador):
         ...
