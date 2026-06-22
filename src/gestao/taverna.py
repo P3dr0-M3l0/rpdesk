@@ -21,8 +21,7 @@ class Taverna:
     
     def renovar_herois(self):
         if self.__herois_disponiveis != []:
-            for i in range(len(self.__herois_disponiveis)):
-                self.__herois_disponiveis.pop(i)
+            self.__herois_disponiveis.clear()
 
         if self.__herois_disponiveis != []:
             raise Exception("Erro: Os heróis não foram removidos corretamente da vitrinni")        
