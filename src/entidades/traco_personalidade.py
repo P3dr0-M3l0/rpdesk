@@ -21,7 +21,7 @@ class TracoPersonalidade(ABC):
         pass
 
     @abstractmethod
-    def avaliar_situacao(self, contexto):
+    def avaliar_situacao(self, contexto: dict, decisao: dict):
         pass
 
     @abstractmethod

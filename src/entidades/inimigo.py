@@ -41,8 +41,8 @@ class Inimigo(Entidade):
     def receber_dano(self, qtdn, fonte):
         super().receber_dano(qtdn, fonte)
     
-    def curar(self):
-        super().curar()
+    def curar(self, valor):
+        super().curar(valor)
         
     def morrer(self):
         super().morrer()

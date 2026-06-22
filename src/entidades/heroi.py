@@ -60,8 +60,8 @@ class Heroi(Entidade):
     def receber_dano(self, qntd, fonte):
         super().receber_dano(qntd, fonte)
         
-    def curar(self):
-        super().curar()
+    def curar(self, valor):
+        super().curar(valor)
     
     def morrer(self):
         super().morrer()
