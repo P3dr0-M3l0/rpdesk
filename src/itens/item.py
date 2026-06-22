@@ -20,10 +20,6 @@ class Item(ABC):
     def valor(self):
         return self.valor
     
-    @abstractmethod 
-    def usar(self):
-        pass
-    
     @abstractmethod
     def serializar(self):
         pass

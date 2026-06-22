@@ -1,8 +1,7 @@
-from abc import ABC, abstractmethod
 from item import Item
 
 
-class Equipamento(Item, ABC):
+class Equipamento(Item):
     def __init__(self, id, nome, valor, slot, modificador):
         super().__init__(id, nome, valor)
         self._slot = slot
@@ -28,10 +27,6 @@ class Equipamento(Item, ABC):
     @property
     def modificador(self):
         return self._modificador
-
-    @abstractmethod
-    def usar(self):
-        pass
     
     def serializar(self):
         dicionario_equipamento = {

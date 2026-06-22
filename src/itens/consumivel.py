@@ -1,8 +1,7 @@
-from abc import ABC, abstractmethod
 from item import Item
 
 
-class Consumivel(Item, ABC):
+class Consumivel(Item):
     def __init__(self, id, nome, valor):
         super().__init__(id, nome, valor)
 
@@ -19,9 +18,17 @@ class Consumivel(Item, ABC):
     def valor(self):
         return super().valor
 
-    @abstractmethod
-    def usar(self):
-        pass
+    def usar(self, alvo):
+        if "Cura Menor" in self._nome:
+            cura = 15
+        elif "Cura Média" in self._nome:
+            cura = 35
+        elif "Cura Maior" in self._nome:
+            cura = 75
+        else:
+            cura = 10
+
+        alvo.curar(cura)
     
     def serializar(self):
         dicionario_item = {
