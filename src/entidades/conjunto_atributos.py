@@ -109,6 +109,13 @@ class ConjuntoDeAtributos():
             self.__hp_atual.valor_base = 0
             
         return self.valor_hp_atual
+
+    def curar(self, valor):
+        self.__hp_atual.valor_base += valor
+        if self.__hp_atual.valor_base > self.valor_hp_max:
+            self.__hp_atual.valor_base = self.valor_hp_max
+            
+        return self.valor_hp_atual
     
     def aplicar_buff_temporario(self, str_atributo, modificador):
         ...
