@@ -1,5 +1,6 @@
+import random
 from entidades.entidade import Entidade
-
+# from itens.pocao_cura import PocaoDeCura
 
 class Heroi(Entidade):
     
@@ -47,37 +48,86 @@ class Heroi(Entidade):
         self.__valor = n
     
     # =====================================================
+    # Tracos ----------------------------------------------
+    # =====================================================
+    # Adicionar verificação
+    def adicionar_traco(self, traco_personalidade):
+        self.__lista_tracos.append(traco_personalidade)
+    
+    # =====================================================
     # Lógica de combate -----------------------------------
     # =====================================================
-    def decidir_acao(self, contexto): # Ainda é necessário definir a lógica
-        
-        dict_acao = {
-            "alvo": 0,
-            "ataque": 0
-        }
-        return dict_acao
-    
     def receber_dano(self, qntd, fonte):
         super().receber_dano(qntd, fonte)
         
-    def curar(self):     
+    def curar(self):
         super().curar()
     
     def morrer(self):
         super().morrer()
-        
-    # Adicionar verificação
-    def adicionar_traco(self, traco_personalidade):
-        self.__lista_tracos.append(traco_personalidade)
 
+    def decidir_acao(self, contexto): # Ainda é necessário definir a lógica
+        acao = None
+        if self.__arvore0_cura() != None:
+            acao = self.__arvore0_cura()
+        elif self.__arvore1_finalizar(contexto) != None:
+            acao = self.__arvore1_finalizar(contexto)
+        elif self.__arvore_fallback(contexto) != None:
+            acao = self.__arvore_fallback(contexto)
+
+        for traco in self.__lista_tracos:
+            acao = traco.avaliar_situacao(contexto, acao)
+
+        return acao
+    
+    # Cláusulas de Guarda ---------------------------------
+    def __arvore0_cura(self):
+        # if self._atributos.valor_hp_atual <= self._atributos.valor_hp_max * 0.3:
+        #     for item in self._inventario.lista_itens:
+        #         if isinstance(item, PocaoDeCura):
+        #             return {'acao': 'curar', 'alvo': self}
+        return None
+    
+    def __arvore1_finalizar(self, contexto: dict):
+        inimigos = contexto['inimigos']
+        if not inimigos:
+            return None
+        
+        temp = 0
+        temp_alvo = None
+        for inimigo in inimigos:
+            vida_inimigo = inimigo.atributos.valor_hp_atual
+            if vida_inimigo <= self.atributos.valor_forca and vida_inimigo > temp:
+                temp = vida_inimigo
+                temp_alvo = inimigo
+        
+        if temp_alvo != None:
+            return {'acao': 'atacar', 'alvo': temp_alvo}
+        return None
+    
+    def __arvore_fallback(self, contexto):
+        inimigos = contexto['inimigos']
+        if not inimigos:
+            return None
+        
+        if random.random() >= 0.45:
+            dict_inimigos = {}
+            for inimigo in inimigos:
+                dict_inimigos[inimigo] = inimigo.atributos.valor_hp_atual
+            alvo = min(dict_inimigos, key=dict_inimigos.get)
+            return {'acao': 'atacar', 'alvo': alvo}
+        else:
+            alvo = random.choice(inimigos)
+            return {'acao': 'atacar', 'alvo': alvo}
+    
     # =====================================================
     # Equipamentos ----------------------------------------
     # =====================================================
     def equipar_item(self, slot, item):
         return super().equipar_item(slot, item)
         
-    def desequipar_item(self, slot, item):
-        return super().desequipar_item(slot, item)
+    def desequipar_item(self, slot):
+        return super().desequipar_item(slot)
     
     # =====================================================
     # Gerenciamento de inventário -------------------------
