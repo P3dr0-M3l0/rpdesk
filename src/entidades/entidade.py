@@ -13,12 +13,10 @@ class Entidade(ABC):
         self._event_manager = event_manager
         self._vivo = True
 
-
-    @abstractmethod
-    def decidir_acao(self, contexto):
-        pass
     
+    # =====================================================
     # Equipamento -----------------------------------------
+    # =====================================================
     def equipar_item(self, slot: str, item):
         self._inventario.remover_item(item)
         
@@ -67,7 +65,9 @@ class Entidade(ABC):
             self._atributos.hp_max.remover_modificadores_por_origem(item.id)
         return True
     
+    # =====================================================
     # Gerenciamento de Inventário -------------------------
+    # =====================================================
     def adicionar_item(self, item):
         if not self._inventario.adicionar_item(item):
             print("\n--= Inventário cheio! =--\n")
@@ -78,13 +78,12 @@ class Entidade(ABC):
         n_item = self._inventario.remover_item(item)
         return n_item
     
-    # Ações de batalha ------------------------------------
-    def verificar_defesa_itens(self):
-        
-        # Verificar os itens de defesa equipados
-        
-        # Retorna o número da defesa total
-        ...
+    # =====================================================
+    # Lógica de Combate -----------------------------------
+    # =====================================================
+    @abstractmethod
+    def decidir_acao(self, contexto):
+        pass
     
     def receber_dano(self, qtnd, fonte):
         
