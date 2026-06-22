@@ -108,11 +108,16 @@ class Entidade(ABC):
         if hp_atual == 0:
             self.morrer()
         
-    def curar(self):
-        
-        # Implementar com Item PocaoDeCura
-        
-        ...
+    def curar(self, valor):
+        hp_atual = self._atributos.curar(valor)
+        self._event_manager.emitir_evento(
+            "entidade_curada",
+            {
+                'cura': valor,
+                'entidade_nome': self._nome
+            }
+        )
+        return hp_atual
         
     def morrer(self):
         
