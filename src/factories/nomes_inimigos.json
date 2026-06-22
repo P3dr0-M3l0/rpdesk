@@ -1,0 +1,38 @@
+{
+  "nomes": [
+    "Goblin", "Orc", "Esqueleto",
+    "Lobo",
+    "Troll",
+    "Cultista",
+    "Bandido",
+    "Zumbi",
+    "Espectro",
+    "Gárgula",
+    "Golem",
+    "Lich",
+    "Harpia",
+    "Minotauro",
+    "Rato Gigante",
+    "Aranha",
+    "Aparição",
+    "Guerreiro Caído"
+  ],
+  "adjetivos": [
+    "Corrompido",
+    "Selvagem",
+    "Rancoroso",
+    "Negro",
+    "Putrefato",
+    "Sombrio",
+    "da Caverna",
+    "Elemental",
+    "Ancestral",
+    "Lacerador",
+    "Feroz",
+    "Raivoso",
+    "do Vazio",
+    "da Cripta",
+    "Espectral",
+    "Assombrado"
+  ]
+}
