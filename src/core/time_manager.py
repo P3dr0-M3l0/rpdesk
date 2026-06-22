@@ -14,4 +14,9 @@ class GerenciadorDeTempo():
             raise ValueError("Erro: Não foi possível avançar o dia")
             return 
         
-        self.__event_manager.emitir_evento("novo_dia")
+        self.__event_manager.emitir_evento(
+            "novo_dia",
+            {
+                'reputacao': self.__game_state.guilda.reputacao
+            }
+        )

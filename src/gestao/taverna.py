@@ -19,7 +19,7 @@ class Taverna:
             raise Exception("Erro: O herói não foi corretamente removido da vitrine")
         return heroi
     
-    def renovar_herois(self):
+    def renovar_herois(self, reputacao):
         if self.__herois_disponiveis != []:
             self.__herois_disponiveis.clear()
 
@@ -28,7 +28,7 @@ class Taverna:
 
         # Por enquanto, a vitrine vai sempre ter 3 heróis
         for i in range(3):
-            heroi = self.__fabrica_herois.gerar_heroi()
+            heroi = self.__fabrica_herois.gerar_heroi(reputacao)
             self.__herois_disponiveis.append(heroi)
             
     def serializar(self):
