@@ -44,6 +44,9 @@ class Inimigo(Entidade):
     def curar(self):
         super().curar()
         
+    def morrer(self):
+        super().morrer()
+        
     def decidir_acao(self, contexto: dict):
         # Estrutura do dicionário "contexto":
         # {'herois': [], 'inimigos': []}
