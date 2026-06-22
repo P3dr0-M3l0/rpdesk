@@ -1,11 +1,14 @@
 class GameState():
     
-    def __init__(self, guilda, taverna, dia_atual, marco_historia, list_missoes_concluidas):
+    def __init__(self, guilda, taverna, dia_atual, marco_historia, list_missoes_concluidas, campanha=None):
         self.__dia_atual = dia_atual
         self.__guilda = guilda
         self.__taverna = taverna
         self.__marco_historia = marco_historia
         self.__list_missoes_concluidas = list_missoes_concluidas
+        # Lista ordenada de instâncias de Missao que compõem a campanha linear.
+        # A missão ativa é inferida via len(list_missoes_concluidas).
+        self.__campanha = campanha if campanha is not None else []
     
 
     # =====================================================
@@ -36,6 +39,30 @@ class GameState():
     @property
     def list_missoes_concluidas(self):
         return self.__list_missoes_concluidas
+
+    @property
+    def campanha(self):
+        return self.__campanha
+    
+    # =====================================================
+    # Gestão de Campanha ----------------------------------
+    # =====================================================
+    def obter_missao_ativa(self):
+        """
+        Retorna a missão ativa com base no número de missões já concluídas.
+        Retorna None se a campanha estiver totalmente concluída.
+        """
+        indice = len(self.__list_missoes_concluidas)
+        if indice >= len(self.__campanha):
+            return None
+        return self.__campanha[indice]
+    
+    def registrar_missao_concluida(self, nome_missao: str):
+        """
+        Registra uma missão como concluída, destravando a próxima.
+        """
+        if nome_missao not in self.__list_missoes_concluidas:
+            self.__list_missoes_concluidas.append(nome_missao)
     
     # =====================================================
     # Gerenciamento do Dia---------------------------------
