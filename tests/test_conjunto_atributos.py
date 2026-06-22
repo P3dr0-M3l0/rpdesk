@@ -9,9 +9,9 @@ def test_inicializacao_atributos():
     mock_em = MockEventManager()
     atributos = ConjuntoDeAtributos(forca=10, destreza=15, inteligencia=5, velocidade=12, hp_max=50, event_manager=mock_em)
     
-    assert atributos.forca == 10
-    assert atributos.hp_max == 50
-    assert atributos.hp_atual == 50
+    assert atributos.forca.valor_base == 10
+    assert atributos.hp_max.valor_base == 50
+    assert atributos.valor_hp_atual == 50
 
 def test_receber_dano_normal_e_limite_zero():
     mock_em = MockEventManager()
@@ -20,9 +20,9 @@ def test_receber_dano_normal_e_limite_zero():
     # Dano normal
     hp_restante = atributos.receber_dano(20)
     assert hp_restante == 30
-    assert atributos.hp_atual == 30
+    assert atributos.valor_hp_atual == 30
     
     # Dano letal (excedente)
     hp_restante = atributos.receber_dano(50)
     assert hp_restante == 0
-    assert atributos.hp_atual == 0 # Garante que não ficou negativo
+    assert atributos.valor_hp_atual == 0 # Garante que não ficou negativo

@@ -26,7 +26,7 @@ def test_receber_dano_e_morte():
     
     # hp fictício de 10. Dano base será 15.
     # Defesa total: 3 (item) + 2 (attr) = 5. Dano real = 10. (Leva o HP a 0).
-    entidade = DummyEntidade(id="uuid-123", nome="Dummy", atributos=mock_attr, inventario=None, event_manager=mock_em)
+    entidade = DummyEntidade(id="uuid-123", nome="Dummy", atributos=mock_attr, inventario=None, slots_equipados={}, event_manager=mock_em)
     
     entidade.receber_dano(15, fonte="Inimigo1")
     

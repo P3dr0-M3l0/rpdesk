@@ -1,24 +1,27 @@
 import pytest
 from entidades.heroi import Heroi
 from factories.fabrica_heroi import FabricaDeHerois
+from factories.fabrica_itens import FabricaItens
 from core.event_manager import EventManager
 
 def test_gerar_heroi_retorna_instancia():
     em = EventManager()
-    fabrica = FabricaDeHerois(event_manager=em)
+    fi = FabricaItens()
+    fabrica = FabricaDeHerois(fabrica_itens=fi, event_manager=em)
     
-    heroi = fabrica.gerar_heroi()
+    heroi = fabrica.gerar_heroi(reputacao=10)
     
     assert isinstance(heroi, Heroi)
     assert heroi._nome != ""
 
 def test_gerar_herois_unicidade_id():
     em = EventManager()
-    fabrica = FabricaDeHerois(event_manager=em)
+    fi = FabricaItens()
+    fabrica = FabricaDeHerois(fabrica_itens=fi, event_manager=em)
     
     ids_gerados = set()
     for _ in range(50):
-        heroi = fabrica.gerar_heroi()
+        heroi = fabrica.gerar_heroi(reputacao=10)
         ids_gerados.add(heroi._id)
         
     # Se o tamanho do set for 50, significa que não houve IDs duplicados
@@ -26,9 +29,10 @@ def test_gerar_herois_unicidade_id():
 
 def test_injecao_dependencia_event_manager():
     em_global = EventManager()
-    fabrica = FabricaDeHerois(event_manager=em_global)
+    fi = FabricaItens()
+    fabrica = FabricaDeHerois(fabrica_itens=fi, event_manager=em_global)
     
-    heroi = fabrica.gerar_heroi()
+    heroi = fabrica.gerar_heroi(reputacao=10)
     
     # Verifica se a instância na Fábrica, no Herói e nos Atributos é exatamente o mesmo objeto na memória
     assert heroi._event_manager is em_global
