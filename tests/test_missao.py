@@ -1,6 +1,8 @@
 import pytest
 from unittest.mock import MagicMock
-from gestao.missao import Missao, EncontroCombate, EncontroTexto
+from gestao.missao import Missao
+from gestao.encontro_combate import EncontroCombate
+from gestao.encontro_texto import EncontroTexto
 from core.event_manager import EventManager
 from core.game_state import GameState
 
