@@ -903,6 +903,13 @@ class GameController:
         def _cb_rodada_iniciada(numero_rodada, **_):
             fila_narrativa.append(f'[TURNO] ─── Rodada {numero_rodada} ───')
 
+        def _cb_rodada_finalizada(herois, inimigos, **_):
+            h_strs = [f"{h['nome']} [{h['hp']}/{h['hp_max']} HP]" for h in herois]
+            i_strs = [f"{i['nome']} [{i['hp']}/{i['hp_max']} HP]" for i in inimigos]
+            fila_narrativa.append(f'  [HP] Heróis: {" | ".join(h_strs)}')
+            fila_narrativa.append(f'  [HP] Inimigos: {" | ".join(i_strs)}')
+            fila_narrativa.append('')
+
         def _cb_acao_executada(origem, acao, alvo, detalhes, **_):
             if acao == 'atacar':
                 dano = detalhes.get('dano_causado', '?')
@@ -911,14 +918,16 @@ class GameController:
                 item = detalhes.get('item_usado', '?')
                 fila_narrativa.append(f'  [CURA] {origem} usa {item} em {alvo}.')
 
-        def _cb_morrer(id_morto, **_):
-            # Resolve o nome da entidade pelo ID se possível
-            todos = list(equipe.membros)
-            nome_morto = str(id_morto)
-            for m in todos:
-                if str(m._id) == str(id_morto):
-                    nome_morto = m.nome
-                    break
+        def _cb_morrer(id_morto, **dados):
+            # Resolve o nome da entidade diretamente a partir do evento de morte, se fornecido
+            nome_morto = dados.get("nome", None)
+            if nome_morto is None:
+                todos = list(equipe.membros)
+                nome_morto = str(id_morto)
+                for m in todos:
+                    if str(m._id) == str(id_morto):
+                        nome_morto = m.nome
+                        break
             fila_narrativa.append(f'  [MORTE] 💀 {nome_morto} caiu em batalha!')
 
         def _cb_combate_finalizado(resultado, xp_acumulado, ouro_saqueado, **_):
@@ -948,6 +957,7 @@ class GameController:
         em.inscrever('evento_texto_processado',   _cb_evento_texto_processado)
         em.inscrever('combate_iniciado',          _cb_combate_iniciado)
         em.inscrever('rodada_iniciada',           _cb_rodada_iniciada)
+        em.inscrever('rodada_finalizada',         _cb_rodada_finalizada)
         em.inscrever('acao_executada',            _cb_acao_executada)
         em.inscrever('morrer',                    _cb_morrer)
         em.inscrever('combate_finalizado',        _cb_combate_finalizado)
@@ -961,6 +971,7 @@ class GameController:
         em.desinscrever('evento_texto_processado',  _cb_evento_texto_processado)
         em.desinscrever('combate_iniciado',         _cb_combate_iniciado)
         em.desinscrever('rodada_iniciada',          _cb_rodada_iniciada)
+        em.desinscrever('rodada_finalizada',        _cb_rodada_finalizada)
         em.desinscrever('acao_executada',           _cb_acao_executada)
         em.desinscrever('morrer',                   _cb_morrer)
         em.desinscrever('combate_finalizado',       _cb_combate_finalizado)

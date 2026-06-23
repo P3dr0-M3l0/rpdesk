@@ -53,7 +53,7 @@ class FabricaDeHerois():
 
 
     def __gerar_atributos(self, reputacao):
-        multiplicador_rep = 0.25
+        multiplicador_rep = 0.06
         # FORCA
         min = int(1 + reputacao*multiplicador_rep)
         max = int(10 + reputacao*multiplicador_rep)
@@ -90,11 +90,11 @@ class FabricaDeHerois():
         return atributos
         
     def __gerar_inventario(self, reputacao):
-        capacidade_max = random.randint(3, 5 + int(reputacao * 0.25))
+        capacidade_max = random.randint(3, 5 + int(reputacao * 0.05))
         return Inventario(capacidade_max, lista_itens=[], event_manager=self.__event_manager)
 
     def __gerar_slots(self, reputacao):
-        multiplicador_rep = 0.10
+        multiplicador_rep = 0.02
         slots_disponiveis = ["cabeca", "tronco", "pernas", "mao_esquerda", "mao_direita", "pes", "dedos"]
         
         slots_equipados = {}
@@ -109,7 +109,7 @@ class FabricaDeHerois():
         return slots_equipados
         
     def __gerar_valor(self, reputacao):
-        return 50 + int(reputacao * 5)
+        return 50 + int(reputacao * 1)
     
     def __gerar_tracos(self, reputacao):
         return []

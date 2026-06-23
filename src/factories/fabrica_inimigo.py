@@ -45,31 +45,32 @@ class FabricaDeInimigos():
         return inimigo
 
     def __gerar_atributos(self, reputacao):
-        multiplicador_rep = 0.25
+        # Inimigos devem ser muito mais desafiadores
+        multiplicador_rep = 0.15
         
         # FORCA
-        min_val = int(1 + reputacao * multiplicador_rep)
-        max_val = int(6 + reputacao * multiplicador_rep)
+        min_val = int(4 + reputacao * multiplicador_rep)
+        max_val = int(10 + reputacao * multiplicador_rep)
         attr_forca = random.randint(min_val, max_val)
         
         # DESTREZA
-        min_val = int(1 + reputacao * multiplicador_rep)
-        max_val = int(6 + reputacao * multiplicador_rep)
+        min_val = int(3 + reputacao * multiplicador_rep)
+        max_val = int(8 + reputacao * multiplicador_rep)
         attr_destreza = random.randint(min_val, max_val)
         
         # INTELIGENCIA
-        min_val = int(1 + reputacao * multiplicador_rep)
-        max_val = int(6 + reputacao * multiplicador_rep)
+        min_val = int(3 + reputacao * multiplicador_rep)
+        max_val = int(8 + reputacao * multiplicador_rep)
         attr_inteligencia = random.randint(min_val, max_val)
         
         # VELOCIDADE
-        min_val = int(1 + reputacao * multiplicador_rep)
-        max_val = int(6 + reputacao * multiplicador_rep)
+        min_val = int(3 + reputacao * multiplicador_rep)
+        max_val = int(8 + reputacao * multiplicador_rep)
         attr_velocidade = random.randint(min_val, max_val)
         
         # HP_MAX
-        min_hp = int(10 + reputacao * multiplicador_rep)
-        max_hp = int(20 + reputacao * multiplicador_rep)
+        min_hp = int(25 + reputacao * 0.5)
+        max_hp = int(50 + reputacao * 1.0)
         attr_hp_max = random.randint(min_hp, max_hp)
         
         atributos = ConjuntoDeAtributos(

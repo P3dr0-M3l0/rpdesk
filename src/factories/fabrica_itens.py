@@ -58,22 +58,22 @@ class FabricaItens():
 
     def gerar_equipamento_para_slot(self, reputacao, slot):
         # Determina o tier do item com base na reputação da guilda
-        if reputacao < 10:
+        if reputacao < 100:
             tier = "baixo"
-        elif reputacao < 30:
+        elif reputacao < 300:
             tier = "medio"
         else:
             tier = "alto"
 
         # Valida se o slot é válido
         if slot not in self.__nomes_slots:
-            slot = "mao_direita"  # Fallback seguro
+            slot = "mao_direita"
 
         # Seleciona um nome aleatório para o slot e tier correspondente
         nome = random.choice(self.__nomes_slots[slot][tier])
 
         # Sorteia o valor do modificador escalado pela reputação
-        multiplicador_rep = 0.2
+        multiplicador_rep = 0.03
         val_min = int(1 + reputacao * multiplicador_rep)
         val_max = int(5 + reputacao * multiplicador_rep * 2.5)
         valor_mod = random.randint(val_min, val_max)
@@ -82,7 +82,7 @@ class FabricaItens():
         modificador = (atributo_afetado, valor_mod, "somar")
 
         # Calcula o valor comercial do item
-        preco = int(15 + reputacao * 3 + valor_mod * 8)
+        preco = int(20 + reputacao * 1.5 + valor_mod * 12)
 
         return Equipamento(
             id=uuid4(),

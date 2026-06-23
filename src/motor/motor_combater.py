@@ -62,6 +62,12 @@ class MotorDeCombate:
                 if not herois_vivos or not inimigos_vivos:
                     break
 
+            # Ao final de cada rodada de combate
+            self.__event_manager.emitir_evento("rodada_finalizada", {
+                'herois': [{'nome': h.nome, 'hp': h.atributos.valor_hp_atual, 'hp_max': h.atributos.valor_hp_max} for h in herois_vivos],
+                'inimigos': [{'nome': i.nome, 'hp': i.atributos.valor_hp_atual, 'hp_max': i.atributos.valor_hp_max} for i in inimigos_vivos]
+            })
+
         resultado = "vitoria" if inimigos_vivos == [] and herois_vivos else "derrota"
 
         xp_acumulado    = self.__calcular_xp(inimigos)
