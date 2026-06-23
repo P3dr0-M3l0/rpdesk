@@ -2,10 +2,24 @@ import sys
 import os
 import time
 
-# Adiciona o diretório src ao path do Python para evitar problemas de importação
+# Resolve caminhos absolutos para evitar problemas com PYTHONPATH
 diretorio_src = os.path.dirname(os.path.abspath(__file__))
-if diretorio_src not in sys.path:
-    sys.path.append(diretorio_src)
+diretorio_raiz = os.path.dirname(diretorio_src)
+
+caminhos_adicionais = [
+    diretorio_raiz,
+    diretorio_src,
+    os.path.join(diretorio_src, "entidades"),
+    os.path.join(diretorio_src, "core"),
+    os.path.join(diretorio_src, "itens"),
+    os.path.join(diretorio_src, "gestao"),
+    os.path.join(diretorio_src, "factories"),
+    os.path.join(diretorio_src, "motor")
+]
+
+for caminho in caminhos_adicionais:
+    if caminho not in sys.path:
+        sys.path.append(caminho)
 
 from core.event_manager import EventManager
 from core.save_manager import SaveManager
@@ -78,7 +92,7 @@ def criar_campanha(fabrica_inimigos, reputacao_inicial):
 
 
 def main():
-    print("Inicializando Mestre de Guilda RPG...")
+    print("Inicializando RpDesk...")
     
     # 1. Eventos e Fábricas
     event_manager = EventManager()
