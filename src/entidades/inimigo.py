@@ -88,7 +88,7 @@ class Inimigo(Entidade):
         if not herois:
             return None
 
-        if random.random() >= 0.45: 
+        if random.random() >= 0.8: 
             dict_herois = {}
             for heroi in herois:
                 dict_herois[heroi] = heroi.atributos.valor_hp_atual

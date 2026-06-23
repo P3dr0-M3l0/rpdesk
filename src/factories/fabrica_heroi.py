@@ -76,7 +76,7 @@ class FabricaDeHerois():
         
         # HP_MAX
         min = int(10 + reputacao*multiplicador_rep)
-        max = int(30 + reputacao*multiplicador_rep)
+        max = int(20 + reputacao*multiplicador_rep)
         attr_hp_max = random.randint(min, max)
         
         atributos = ConjuntoDeAtributos(

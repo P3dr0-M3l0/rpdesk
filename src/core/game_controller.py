@@ -196,7 +196,7 @@ class GameController:
             for i in range(len(lista_herois)):
                 heroi = lista_herois[i]
                 atributos = heroi.atributos
-                print(f"---- Herói ----== {i+1} ==----")
+                print(f"---- {heroi.nome} ----== {i+1} ==----")
                 print(f"Atributos:\n    - Força: {atributos.valor_forca}\n    - Destreza: {atributos.valor_destreza}")
                 print(f"    - Inteligência: {atributos.valor_inteligencia}")
                 print(f"    - Velocidade: {atributos.valor_velocidade}\n    - HP Máximo: {atributos.valor_hp_max}")
