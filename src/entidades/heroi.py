@@ -161,8 +161,8 @@ class Heroi(Entidade):
     # =====================================================
     # Equipamentos ----------------------------------------
     # =====================================================
-    def equipar_item(self, slot, item):
-        return super().equipar_item(slot, item)
+    def equipar_item(self, item):
+        return super().equipar_item(item)
         
     def desequipar_item(self, slot):
         return super().desequipar_item(slot)

@@ -102,8 +102,8 @@ class Inimigo(Entidade):
     # =====================================================
     # Equipamento -----------------------------------------
     # =====================================================
-    def equipar_item(self, slot, item):
-        super().equipar_item(slot, item)
+    def equipar_item(self, item):
+        super().equipar_item(item)
         
     def desequipar_item(self, slot):
         super().desequipar_item(slot)

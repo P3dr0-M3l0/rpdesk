@@ -12,20 +12,17 @@ class Entidade(ABC):
         self._slots_equipados = slots_equipados
         self._event_manager = event_manager
         self._vivo = True
+        
+        # Aplicar modificadores para todos os equipamentos equipados no início
+        for slot, item in self._slots_equipados.items():
+            if item:
+                self._aplicar_modificador_item(item)
+        
+        # Garantir que o HP atual acompanhe o HP máximo modificado na criação do herói
+        if hasattr(self._atributos, 'hp_max') and hasattr(self._atributos, 'hp_atual'):
+            self._atributos.hp_atual.valor_base = self._atributos.hp_max.valor_total
 
-    
-    # =====================================================
-    # Equipamento -----------------------------------------
-    # =====================================================
-    def equipar_item(self, slot: str, item):
-        self._inventario.remover_item(item)
-        
-        if slot in self._slots_equipados:
-            self._inventario.adicionar_item(item)
-            return False
-        
-        self._slots_equipados[slot] = item
-        
+    def _aplicar_modificador_item(self, item):
         atributo_modificar = item.modificador[0]
         valor_modificar = item.modificador[1]
         tipo_modificar =  item.modificador[2]
@@ -42,9 +39,32 @@ class Entidade(ABC):
             self._atributos.velocidade.adicionar_modificador(modificador)
         elif atributo_modificar == "hp_max":
             self._atributos.hp_max.adicionar_modificador(modificador)
+
+    def verificar_defesa_itens(self, qtnd):
+        defesa = 0
+        for slot, item in self._slots_equipados.items():
+            if item and len(item.modificador) > 0 and item.modificador[0] == "defesa":
+                defesa += item.modificador[1]
+        return defesa
+
+    # =====================================================
+    # Equipamento -----------------------------------------
+    # =====================================================
+    def equipar_item(self, item):
+        slot = item.slot
+        self._inventario.remover_item(item)
+        
+        if slot in self._slots_equipados and self._slots_equipados[slot] is not None:
+            self._inventario.adicionar_item(item)
+            return False
+        
+        self._slots_equipados[slot] = item
+        self._aplicar_modificador_item(item)
         return True
         
     def desequipar_item(self, slot: str):
+        if slot not in self._slots_equipados:
+            return False
         item = self._slots_equipados.pop(slot)
         
         if not self._inventario.adicionar_item(item):

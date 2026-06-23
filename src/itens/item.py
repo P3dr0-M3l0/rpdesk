@@ -18,7 +18,7 @@ class Item(ABC):
     
     @property
     def valor(self):
-        return self.valor
+        return self._valor
     
     @abstractmethod
     def serializar(self):

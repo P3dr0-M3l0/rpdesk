@@ -100,7 +100,10 @@ class ConjuntoDeAtributos():
     # ===============================================
     def calcular_defesa_attr(self):
         # Verificar a defesa a partir dos atributos, como destreza
-        ...
+        return self.valor_destreza // 2
+    
+    def verificar_defesa_attr(self, valor):
+        return self.calcular_defesa_attr()
     
     def receber_dano(self, valor):
         

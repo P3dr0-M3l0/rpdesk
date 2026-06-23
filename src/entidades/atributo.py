@@ -29,7 +29,7 @@ class Atributo:
         total = (self.__valor_base + somas) * (1 + multiplicacoes)
         return total
     
-    def adicionar_modicador(self, modificador):
+    def adicionar_modificador(self, modificador):
         if not isinstance(modificador, Modificador):
             raise TypeError("Erro: Era esperado um objeto do tipo Modificador")
         if modificador is None:
