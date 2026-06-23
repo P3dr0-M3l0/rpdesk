@@ -24,7 +24,7 @@ class Guilda:
     
     @ouro.setter
     def ouro(self, valor):
-        if valor <= 0:
+        if valor < 0:
             raise ValueError("Não é possível ter uma quantidade negativa de ouro... ainda")
         self.__ouro = valor
         

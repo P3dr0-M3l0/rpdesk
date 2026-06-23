@@ -1,4 +1,4 @@
-from src.entidades.heroi import Heroi
+from entidades.heroi import Heroi
 
 
 class Equipe():
