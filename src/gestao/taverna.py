@@ -19,7 +19,7 @@ class Taverna:
             raise Exception("Erro: O herói não foi corretamente removido da vitrine")
         return heroi
     
-    def renovar_herois(self, reputacao):
+    def renovar_herois(self, reputacao=0):
         if self.__herois_disponiveis != []:
             self.__herois_disponiveis.clear()
 

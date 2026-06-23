@@ -1,5 +1,8 @@
 import os
+import time
 from game_state import GameState
+from motor.motor_combater import MotorDeCombate
+from gestao.missao import Missao
 from src.itens.equipamento import Equipamento
 from src.itens.consumivel import Consumivel
 
@@ -29,7 +32,7 @@ class GameController:
         taverna.renovar_herois()
         
     def inicializar(self):
-        pass
+        self.__gerar_mundo_dados_iniciais()
     
     def __parar_motor(self, dados:dict = None):
         pass
@@ -63,13 +66,6 @@ class GameController:
            Opção 2: Gerenciar Equipes e Heróis
            Opção 3: Abrir o Baú da Guilda
            Opção 4: Ir para a Batalha (Expedições)
-           - Solicita a seleção de uma Equipe previamente formada.
-           - Solicita a escolha do mapa/missão (define os inimigos).
-           - Aciona o MotorDeCombate.
-           - Loop de combate processa a IA (traços de personalidade) e os turnos.
-           - Em caso de vitória: repassa espólios ao baú da Guilda e XP aos heróis.
-           - Retorna ao Menu da Guilda.
-           
            Opção 5: Avançar o Tempo (Encerrar o Dia)
            - Invoca o GerenciadorDeTempo para passar o turno.
            - Atualiza o atributo __dia_atual no GameState.
@@ -142,9 +138,13 @@ class GameController:
         while True:
             print("\n> “Deseja comprar algum desses heróis?”\n> “Se sim, digite o número do herói”")
             print("> “Se não, volte ao Menu da Guilda digitando * 0 *”")
-            escolha = int(input("> "))
+            try:
+                escolha = int(input("> "))
+            except ValueError:
+                print("Entrada Inválida, tente novamente!")
+                continue
             
-            if escolha in range(len(1, lista_herois+1)):
+            if escolha in range(1, len(lista_herois)+1):
                 self.processar_contratacao_taverna(lista_herois[escolha-1])
             elif escolha == 0:
                 break
@@ -163,29 +163,36 @@ class GameController:
         """
         guilda = self.__game_state.guilda
         
-        self.hud_global()
-        
-        print("> “Como vamos organizar os heróis hoje, senhor?”")
-        print("    1. Listar Heróis disponíveis para alocação")
-        print("    2. Editar equipes existentes")
-        print("    3. Criar equipe nova")
-        print("    0. Voltar ao menu anterior")
-        escolha = input("> ")
-
         while True:
+            self.hud_global()
+            print("\n\n> “Como vamos organizar os heróis hoje, senhor?”")
+            print("    1. Listar Heróis disponíveis para alocação")
+            print("    2. Editar equipes existentes")
+            print("    3. Criar equipe nova")
+            print("    0. Voltar ao menu anterior")
+            escolha = input("> ")
+
             if escolha == '1':
                 self.menu_roster_guilda(guilda, True)
             elif escolha == '2':
                 equipes = guilda.equipes_ativas
+                if not equipes:
+                    print("> “Não há nenhuma equipe ativa ainda, senhor!”")
+                    input("> [Pressione Enter para continuar]")
+                    continue
                 for i in range(len(equipes)):
-                    print(f"{i+1}. {equipes[i].nome} - {len(equipes[i].mebros)}/{equipes[i].limite_membros} membros")
+                    print(f"{i+1}. {equipes[i].nome} - {len(equipes[i].membros)}/{equipes[i].limite_membros} membros")
                 print("> “Qual dessas equipes tu queres gerenciar?”")
                 try:
                     i_equipe = int(input("> "))
-                    if i_equipe in range(len(equipes)):
-                        self.menu_equipe_individual(equipes[i_equipe], guilda)
+                    if i_equipe in range(1, len(equipes) + 1):
+                        self.menu_equipe_individual(equipes[i_equipe - 1], guilda)
+                    else:
+                        print("> “Essa equipe não existe!”")
+                        input("> [Pressione Enter para continuar]")
                 except ValueError:
                     print("> “Acho que isso não é um número válido”")
+                    input("> [Pressione Enter para continuar]")
             elif escolha == '3':
                 print("> “Uhhh, uma equipe nova é?!”")
                 print("> “Sempre fico animado!”")
@@ -193,7 +200,9 @@ class GameController:
                 while True:
                     nome = input("> ")
                     if len(nome) > 20:
-                        print("\n> “Que nome grande, chefe, tente algo com menos de 20 linhas”")
+                        print("\n> “Que nome grande, chefe, tente algo com menos de 20 letras”")
+                    elif len(nome.strip()) == 0:
+                        print("\n> “Nome não pode ser vazio, chefe!”")
                     else:
                         break
                 print("\n> “Hm, achei que seria melhor”")
@@ -202,8 +211,8 @@ class GameController:
                 break
             else:
                 print("> “Não quer tentar de novo, senhor?”")
-        
-        
+                input("> [Pressione Enter para continuar]")
+           
     def menu_roster_guilda(self, guilda, flag_inv_herois: bool):
         """
         Opção 2.1: Lista todos os heróis recrutados no roster da Guilda
@@ -306,12 +315,12 @@ class GameController:
         Opção 2.3: Permite editar equipes existentes ou equipes novas
         """
         membros = equipe.membros
-        roster = guilda.roster
+        roster = guilda.roster_herois
 
         while True:
             self.hud_global()
 
-            print(f"\n-== Equipe {equipe.nome} ==-")
+            print(f"\n\n-== Equipe {equipe.nome} ==-")
             print(f"Heróis ativos: {len(membros)}/{equipe.limite_membros}")
             for i in range(len(membros)):
                 atributos = membros[i].atributos
@@ -321,9 +330,9 @@ class GameController:
                 print(f"- Força: {atributos.valor_forca} - Velocidade: {atributos.valor_velocidade} ", end='')
                 print(f"- Destreza: {atributos.valor_destreza} - Inteligencia: {atributos.valor_inteligencia}")
                 print("  - Tracos: ", end='')
-                for i in range(len(tracos)):
-                    print(f"{tracos[i].nome}", end="")
-                    if i != len(tracos)-1:
+                for j in range(len(tracos)):
+                    print(f"{tracos[j].nome}", end="")
+                    if j != len(tracos)-1:
                         print("/", end="")
                 print("\n")
             print("=============================-------------------------------------------------------")
@@ -346,7 +355,7 @@ class GameController:
                             break
                         print("> “Me fale o número do herói que quer ver” (referente à equipe)")
                         try:
-                            i_heroi = int(input("> "))-1
+                            i_heroi = int(input("> "))
                             if i_heroi in range(len(membros)):
                                 self.menu_inventario_heroi(membros[i_heroi])
                             else:
@@ -362,7 +371,7 @@ class GameController:
                             break
                         print("> “Qual o número do herói que quer ver?” (referente aos disponíveis na guilda)")
                         try:
-                            i_heroi = int(input("> "))-1
+                            i_heroi = int(input("> "))
                             if i_heroi in range(len(roster)):
                                 self.menu_inventario_heroi(roster[i_heroi])
                             else:
@@ -379,36 +388,46 @@ class GameController:
                     print("> “Essa equipe já está cheia, senhor!”")
                     continue
                 while True:
+                    if not roster:
+                        print("> “Não há heróis disponíveis no roster!”")
+                        break
                     print("\n> “Fale o número do herói que quer adicionar”")
                     try:
-                        i_heroi = int(input("> "))-1  
+                        i_heroi = int(input("> "))
                     except ValueError:
                         print("> “Creio que esse valor não serve”")
                         continue
                     if i_heroi not in range(len(roster)):
                         print("> “Creio que esse valor não serve”")
-                    guilda.remover_heroi_roster(roster[i_heroi])
-                    equipe.adicionar_membro(roster[i_heroi])
+                        continue
+                    heroi_escolhido = roster[i_heroi]
+                    guilda.remover_heroi_roster(heroi_escolhido)
+                    equipe.adicionar_membro(heroi_escolhido)
                     break
             elif escolha == '3':
+                if not membros:
+                    print("> “Essa equipe não possui membros para remover!”")
+                    continue
                 while True:
                     print("\n> “Fale o número do herói que quer remover da equipe”")
                     try:
-                        i_heroi = int(input("> "))-1  
+                        i_heroi = int(input("> "))
                     except ValueError:
                         print("> “Creio que esse valor não serve”")
                         continue
                     if i_heroi not in range(len(membros)):
                         print("> “Creio que esse valor não serve”")
-                    equipe.remover_membro(membros[i_heroi])
-                    guilda.adicionar_heroi_roster(membros[i_heroi])
+                        continue
+                    heroi_escolhido = membros[i_heroi]
+                    equipe.remover_membro(heroi_escolhido)
+                    guilda.adicionar_heroi_roster(heroi_escolhido)
                     break
             elif escolha == '0':
                 break
             else:
                 print("> “Temo que essa não seja uma opção válida, senhor”")
                 
-    def menu_bau(self, guilda):
+    def menu_bau(self):
         """
         Opção 3: Abrir o Baú da Guilda
            - Lista todos os itens guardados no inventário central.
@@ -418,18 +437,19 @@ class GameController:
         """
         self.hud_global()
         
+        guilda = self.__game_state.guilda
         print(f"\n-== Inventário da Guilda: {guilda.nome} ==-\n")
         
         bau = guilda.inventario_guilda
         for i in range(len(bau.lista_itens)):
-            item = bau[i]
+            item = bau.lista_itens[i]
             if isinstance(item, Equipamento):
                 print(f"{i+1}. {item.nome}-{item.modificador[0]}/{item.modificador[1]}/{item.modificador[2]}-{item.valor}")
             elif isinstance(item, Consumivel):
                 print(f"{i+1}. {item.nome}-{item.valor}")
         print("\n===------------------------------------------------------------------------------===")
         
-        if len(bau) == 0:
+        if len(bau.lista_itens) == 0:
             print("\n> “Parece que o nosso baú está vazio, não há muito o que fazer aqui!”")
             print("*Para sair, pressione qualquer botão*")
             input("> ")
@@ -446,11 +466,11 @@ class GameController:
                 print("> “Digite o número do item que deseja transferir”")
                 try:
                     n_item = int(input("> "))
-                except TypeError:
+                except ValueError:
                     print("> “Isso não é um número, chefe”")
                     print("===------------------------------------------------------------------------------===")
                     continue
-                if (n_item-1) not in range(len(bau.listar_itens)):
+                if (n_item-1) not in range(len(bau.lista_itens)):
                     print("> “Não consegui achar isso no baú, tente de novo, por favor”")
                     print("===------------------------------------------------------------------------------===")
                     continue
@@ -482,7 +502,7 @@ class GameController:
                 print("> “Digite o número do herói que quer transferir o item”")
                 try:
                     n_heroi = int(input("> "))
-                except TypeError:
+                except ValueError:
                     print("> “Isso não é um número, chefe”")
                     print("===------------------------------------------------------------------------------===")
                     continue
@@ -503,8 +523,273 @@ class GameController:
                 break
             else:
                 print("> “Não me parece que essa escolha estava nas opções”")
-            
-            
+
+    def menu_batalha(self):
+        """
+        Opção 4: Ir para a Batalha (Expedições)
+           - Solicita a seleção de uma Equipe previamente formada.
+           - Exibe o sumário da missão ativa e pede confirmação.
+           - Aciona o MotorDeCombate e a Missao, acumulando eventos numa fila.
+           - Exibe a narrativa da batalha compassadamente (0.8s por ação).
+           - Aplica as consequências (XP, ouro, reputação, mortes, baixas de equipe).
+           - Retorna ao Menu da Guilda.
+        """
+        self.hud_global()
+        guilda = self.__game_state.guilda
+
+        # ---------------------------------------------------
+        # 1. Seleção de Equipe
+        # ---------------------------------------------------
+        equipes = guilda.equipes_ativas
+        if not equipes:
+            print('\n> “Não há nenhuma equipe formada, senhor!\n  Forme uma equipe antes de partir para batalha.”')
+            input('> [Enter para voltar]')
+            return
+
+        print('\n\n> “Qual equipe vai partir para a expedição?”\n')
+        for i, eq in enumerate(equipes, 1):
+            membros_vivos = [m for m in eq.membros if m._vivo]
+            print(f'  {i}. {eq.nome} — {len(membros_vivos)}/{eq.limite_membros} heróis')
+        print('  0. Voltar')
+
+        try:
+            escolha = int(input('> '))
+        except ValueError:
+            return
+
+        if escolha == 0 or escolha not in range(1, len(equipes) + 1):
+            return
+
+        equipe = equipes[escolha - 1]
+        membros_vivos = [m for m in equipe.membros if m._vivo]
+        if not membros_vivos:
+            print('> “Essa equipe não tem heróis vivos para partir!”')
+            input('> [Enter para voltar]')
+            return
+
+        # ---------------------------------------------------
+        # 2. Obtenção da Missão Ativa
+        # ---------------------------------------------------
+        missao = self.__game_state.obter_missao_ativa()
+        if missao is None:
+            print('\n> “A campanha está concluída, senhor! Não há mais missões disponíveis.”')
+            input('> [Enter para voltar]')
+            return
+
+        # ---------------------------------------------------
+        # 3. Apresentação e Confirmação
+        # ---------------------------------------------------
+        self.hud_global()
+        print(f'\n\n===--- MISSÃO: {missao.nome} ---===')
+        print(f'  Dificuldade : {missao.dificuldade}')
+        print(f'  Descrição  : {missao.descricao}')
+        print(f'  Recompensas : {missao.recompensa_ouro} Ouro | {missao.recompensa_xp} XP | {missao.recompensa_reputacao} Rep.')
+        print(f'\n  Equipe      : {equipe.nome} ({len(membros_vivos)} heróis)')
+        print('\n> “Partir para essa expedição? (S/N)”')
+        confirmar = input('> ').strip().upper()
+        if confirmar != 'S':
+            return
+
+        # ---------------------------------------------------
+        # 4. Orquestração e Fila de Narrativa
+        # ---------------------------------------------------
+        fila_narrativa = []
+        em = self.__event_manager
+
+        def _cb_missao_iniciada(nome, descricao, dificuldade, **_):
+            fila_narrativa.append('')
+            fila_narrativa.append(f'=== EXPEDIÇÃO INICIADA: {nome} ===')
+            fila_narrativa.append(f'  {descricao}')
+            fila_narrativa.append('')
+
+        def _cb_encontro_iniciado(tipo, **dados):
+            fila_narrativa.append('---')
+            if tipo == 'combate':
+                inimigos_str = ', '.join(dados.get('inimigos', []))
+                fila_narrativa.append(f'[COMBATE] Inimigos: {inimigos_str}')
+            elif tipo == 'texto':
+                fila_narrativa.append(f'[EVENTO] {dados.get("narrativa", "")}')
+            fila_narrativa.append('')
+
+        def _cb_evento_texto_processado(narrativa, efeitos, **_):
+            for chave, valor in efeitos.items():
+                if chave == 'dano_hp':
+                    fila_narrativa.append(f'  ⚡ A equipe sofreu {valor} de dano!')
+                elif chave == 'cura_hp':
+                    fila_narrativa.append(f'  ❤ A equipe recuperou {valor} de HP!')
+                elif chave == 'ouro' and valor != 0:
+                    sinal = '+' if valor > 0 else ''
+                    fila_narrativa.append(f'  💰 Ouro: {sinal}{valor}')
+
+        def _cb_combate_iniciado(herois, inimigos, **_):
+            fila_narrativa.append(f'  Heróis  : {", ".join(herois)}')
+            fila_narrativa.append(f'  Inimigos: {", ".join(inimigos)}')
+            fila_narrativa.append('')
+
+        def _cb_rodada_iniciada(numero_rodada, **_):
+            fila_narrativa.append(f'-- Round {numero_rodada} --')
+
+        def _cb_acao_executada(origem, acao, alvo, detalhes, **_):
+            if acao == 'atacar':
+                dano = detalhes.get('dano_causado', '?')
+                fila_narrativa.append(f'  {origem} ataca {alvo} causando {dano} de dano.')
+            elif acao == 'curar':
+                item = detalhes.get('item_usado', '?')
+                fila_narrativa.append(f'  {origem} usa {item} em {alvo}.')
+
+        def _cb_morrer(id_morto, **_):
+            # Resolve o nome da entidade pelo ID se possível
+            todos = list(equipe.membros)
+            nome_morto = str(id_morto)
+            for m in todos:
+                if str(m._id) == str(id_morto):
+                    nome_morto = m.nome
+                    break
+            fila_narrativa.append(f'  ☠  {nome_morto} caiu em batalha!')
+
+        def _cb_combate_finalizado(resultado, xp_acumulado, ouro_saqueado, **_):
+            fila_narrativa.append('')
+            status = 'VICTÓRIA' if resultado == 'vitoria' else 'DERROTA'
+            fila_narrativa.append(f'[{status}] XP acumulado: {xp_acumulado} | Ouro saqueado: {ouro_saqueado}')
+            fila_narrativa.append('')
+
+        def _cb_missao_finalizada(resultado, nome, **dados):
+            fila_narrativa.append('')
+            if resultado == 'vitoria':
+                fila_narrativa.append(f'=== MISSÃO CONCLUÍDA: {nome} ===')
+                fila_narrativa.append(f'  Ouro extra   : +{dados.get("recompensa_ouro", 0)}')
+                fila_narrativa.append(f'  XP extra     : +{dados.get("recompensa_xp", 0)}')
+                fila_narrativa.append(f'  Reputação   : +{dados.get("recompensa_reputacao", 0)}')
+            else:
+                enc = dados.get('encontro', '?')
+                fila_narrativa.append(f'=== MISSÃO FRACASSADA: {nome} ===')
+                fila_narrativa.append(f'  A equipe foi dizimada no encontro {enc}.')
+            fila_narrativa.append('')
+
+        em.inscrever('missao_iniciada',          _cb_missao_iniciada)
+        em.inscrever('encontro_iniciado',         _cb_encontro_iniciado)
+        em.inscrever('evento_texto_processado',   _cb_evento_texto_processado)
+        em.inscrever('combate_iniciado',          _cb_combate_iniciado)
+        em.inscrever('rodada_iniciada',           _cb_rodada_iniciada)
+        em.inscrever('acao_executada',            _cb_acao_executada)
+        em.inscrever('morrer',                    _cb_morrer)
+        em.inscrever('combate_finalizado',        _cb_combate_finalizado)
+        em.inscrever('missao_finalizada',         _cb_missao_finalizada)
+
+        motor_combate = MotorDeCombate(em)
+        resultado_expedicao = missao.executar(equipe, motor_combate, em)
+
+        em.desinscrever('missao_iniciada',         _cb_missao_iniciada)
+        em.desinscrever('encontro_iniciado',        _cb_encontro_iniciado)
+        em.desinscrever('evento_texto_processado',  _cb_evento_texto_processado)
+        em.desinscrever('combate_iniciado',         _cb_combate_iniciado)
+        em.desinscrever('rodada_iniciada',          _cb_rodada_iniciada)
+        em.desinscrever('acao_executada',           _cb_acao_executada)
+        em.desinscrever('morrer',                   _cb_morrer)
+        em.desinscrever('combate_finalizado',       _cb_combate_finalizado)
+        em.desinscrever('missao_finalizada',        _cb_missao_finalizada)
+
+        # ---------------------------------------------------
+        # 5. Exibição Compassada
+        # ---------------------------------------------------
+        os.system('cls' if os.name == 'nt' else 'clear')
+        self.hud_global()
+        for linha in fila_narrativa:
+            print(linha)
+            time.sleep(0.8)
+
+        input('\n> [Enter para ver o resultado final]')
+
+        # ---------------------------------------------------
+        # 6. Aplicação de Consequências
+        # ---------------------------------------------------
+        resultado = resultado_expedicao['resultado']
+        herois_mortos = resultado_expedicao.get('herois_mortos', [])
+
+        if resultado == 'derrota':
+            print('\n\n=== ⚠ DERROTA TOTAL ⚠ ===')
+            print(f'  A expedição de {equipe.nome} foi aniquilada.')
+            print('  Todos os heróis e seus pertences foram perdidos.')
+
+            # Remove a equipe da guilda
+            if equipe in guilda.equipes_ativas:
+                guilda.equipes_ativas.remove(equipe)
+
+        else:
+            # Vitória: aplica recompensas
+            ouro_total  = resultado_expedicao.get('ouro_total', 0)
+            xp_total    = resultado_expedicao.get('xp_total', 0)
+            reputacao   = resultado_expedicao.get('reputacao_ganha', 0)
+
+            guilda.ouro      += ouro_total
+            guilda.reputacao += reputacao
+
+            # Transfere itens saqueados e recuperados para o baú
+            for item in resultado_expedicao.get('itens_saqueados', []):
+                guilda.inventario_guilda.adicionar_item(item)
+            for item in resultado_expedicao.get('itens_recuperados', []):
+                guilda.inventario_guilda.adicionar_item(item)
+
+            # Distribui XP aos sobreviventes
+            sobreviventes = resultado_expedicao.get('herois_sobreviventes', [])
+            for heroi in sobreviventes:
+                niveis_ganhos = heroi.ganhar_xp(xp_total)
+                if niveis_ganhos > 0:
+                    print(f'  ⭐ {heroi.nome} subiu {niveis_ganhos} nível(is)! Agora está no nível {heroi.nivel}.')
+
+            # Remove heróis mortos de suas equipes (mortes parciais em vitória)
+            for heroi_morto in herois_mortos:
+                for eq in guilda.equipes_ativas:
+                    if heroi_morto in eq.membros:
+                        eq.membros.remove(heroi_morto)
+                        break
+
+            # Marca a missão como concluída
+            self.__game_state.registrar_missao_concluida(missao.nome)
+
+            print(f'\n\n=== 🏆 VITÓRIA: {missao.nome} ===')
+            print(f'  Ouro ganho    : +{ouro_total}')
+            print(f'  Reputação    : +{reputacao}')
+            print(f'  XP distribuído: +{xp_total} por herói sobrevivente')
+
+        print('')
+        input('> [Enter para voltar ao Menu da Guilda]')
+
+    def menu_fim_dia(self):
+        print("\n> Encerrando o dia...")
+        self.__time_manager.avancar_dia()
+        print(f"> Um novo amanhecer! Bem-vindo ao Dia {self.__game_state.dia_atual}.")
+        time.sleep(1.5)
+
+    def menu_sistema(self):
+        self.hud_global()
+        print("\n\n===--- OPÇÕES DE SISTEMA ---===")
+        print("1. Salvar Jogo")
+        print("2. Salvar e Sair")
+        print("3. Sair sem Salvar")
+        print("0. Voltar")
+        escolha = input("> ")
+        if escolha == '1':
+            print("\n> Salvando jogo...")
+            self.__save_manager.salvar_estado(self.__game_state)
+            print("> Jogo salvo com sucesso!")
+            time.sleep(1.5)
+        elif escolha == '2':
+            print("\n> Salvando jogo...")
+            self.__save_manager.salvar_estado(self.__game_state)
+            print("> Jogo salvo. Saindo...")
+            time.sleep(1.0)
+            self.__rodando = False
+        elif escolha == '3':
+            confirmar = input("> Tem certeza que deseja sair sem salvar? (S/N): ").strip().upper()
+            if confirmar == 'S':
+                self.__rodando = False
+        elif escolha == '0':
+            return
+        else:
+            print("> Opção inválida!")
+            time.sleep(1.0)
+
     # =====================================================
     # Auxiliares ------------------------------------------
     # =====================================================
