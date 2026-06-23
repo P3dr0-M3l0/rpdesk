@@ -42,6 +42,8 @@ def test_injecao_dependencia_event_manager_inimigo():
 
 
 def test_escalonamento_atributos_e_xp():
+    import random
+    random.seed(42)
     em = EventManager()
     fi = FabricaItens()
     fabrica = FabricaDeInimigos(fabrica_itens=fi, event_manager=em)
@@ -53,8 +55,8 @@ def test_escalonamento_atributos_e_xp():
     assert inimigo_forte.xp_recompensa > inimigo_fraco.xp_recompensa
     
     # A verificação de atributos deve levar em conta o aspecto estocástico (random.randint).
-    # Como as faixas de random variam, com reputação 0 os atributos variam de 1 a 10 (base),
-    # enquanto com reputação 50 eles variam de 13 a 22 (min_val = 1 + 50*0.25 = 13, max_val = 10 + 12 = 22).
-    # Portanto, a força mínima do forte (13) é estritamente maior que a força máxima do fraco (10).
+    # Como as faixas de random variam, com reputação 0 os atributos variam de 1 a 6 (base),
+    # enquanto com reputação 50 eles variam de 13 a 18 (min_val = 1 + 50*0.25 = 13, max_val = 6 + 12 = 18).
+    # Portanto, a força mínima do forte (13) é estritamente maior que a força máxima do fraco (6).
     assert inimigo_forte.atributos.forca.valor_base > inimigo_fraco.atributos.forca.valor_base
     assert inimigo_forte.atributos.hp_max.valor_base > inimigo_fraco.atributos.hp_max.valor_base

@@ -109,7 +109,7 @@ class FabricaDeHerois():
         return slots_equipados
         
     def __gerar_valor(self, reputacao):
-        return 100 + int(reputacao * 5)
+        return 50 + int(reputacao * 5)
     
     def __gerar_tracos(self, reputacao):
         return []

@@ -49,27 +49,27 @@ class FabricaDeInimigos():
         
         # FORCA
         min_val = int(1 + reputacao * multiplicador_rep)
-        max_val = int(10 + reputacao * multiplicador_rep)
+        max_val = int(6 + reputacao * multiplicador_rep)
         attr_forca = random.randint(min_val, max_val)
         
         # DESTREZA
         min_val = int(1 + reputacao * multiplicador_rep)
-        max_val = int(10 + reputacao * multiplicador_rep)
+        max_val = int(6 + reputacao * multiplicador_rep)
         attr_destreza = random.randint(min_val, max_val)
         
         # INTELIGENCIA
         min_val = int(1 + reputacao * multiplicador_rep)
-        max_val = int(10 + reputacao * multiplicador_rep)
+        max_val = int(6 + reputacao * multiplicador_rep)
         attr_inteligencia = random.randint(min_val, max_val)
         
         # VELOCIDADE
         min_val = int(1 + reputacao * multiplicador_rep)
-        max_val = int(10 + reputacao * multiplicador_rep)
+        max_val = int(6 + reputacao * multiplicador_rep)
         attr_velocidade = random.randint(min_val, max_val)
         
         # HP_MAX
         min_hp = int(10 + reputacao * multiplicador_rep)
-        max_hp = int(30 + reputacao * multiplicador_rep)
+        max_hp = int(20 + reputacao * multiplicador_rep)
         attr_hp_max = random.randint(min_hp, max_hp)
         
         atributos = ConjuntoDeAtributos(
