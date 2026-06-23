@@ -1,63 +1,145 @@
-# RpDesk
+<h1 align="center">RpDesk ⚔️</h1>
 
-# Índice
+<p align="center">
+  <img src="https://img.shields.io/badge/STATUS-MVP%20CONCLU%C3%8DDO-brightgreen?style=for-the-badge" alt="Status MVP Concluído">
+  <img src="https://img.shields.io/badge/Python-3.12.3-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python Version">
+  <img src="https://img.shields.io/badge/Tests-Pytest-brightgreen?style=for-the-badge&logo=pytest&logoColor=white" alt="Tests Pytest">
+  <img src="https://img.shields.io/badge/License-Propriet%C3%A1ria-orange?style=for-the-badge" alt="Licença Proprietária">
+</p>
 
-- [Descrição do Projeto](#descrição-do-projeto)
-    
-- [Status do Projeto](#status-do-projeto)
-    
-- [Arquitetura e Funcionalidades Implementadas](#arquitetura-e-funcionalidades-implementadas)
-    
-- [Tecnologias Utilizadas](#tecnologias-utilizadas)
-    
-- [Desenvolvedores do Projeto](#desenvolvedores-do-projeto)
-    
-- [Licença](#licença)
-    
+O **RpDesk** é um motor de gerenciamento de guilda de RPG desenvolvido inteiramente em Python para execução via terminal. Nele, você assume o papel de diretor de uma guilda de heróis, lidando com contratações, gerenciamento de recursos, distribuição de equipamentos e missões automáticas narradas com combate em turnos.
 
-# Descrição do Projeto
+O projeto serve como laboratório prático para consolidar conceitos de engenharia de software e Programação Orientada a Objetos (POO), aplicando os quatro pilares (Herança, Polimorfismo, Encapsulamento e Abstração) e relações como Composição, Agregação e Dependência de forma rigorosa e desacoplada.
 
-O **RpDesk** é um motor de gerenciamento de RPG desenvolvido puramente em backend. O jogador assume o papel de diretor de uma guilda, responsável por recrutar heróis na Taverna, gerenciar inventários e baús, montar equipes de expedição e orquestrar expedições automatizadas com combates em turnos.
+---
 
-O motor foi projetado com um objetivo central: a aplicação prática e rigorosa da Programação Orientada a Objetos (POO). Este projeto atua como um laboratório arquitetural para consolidar os estudos e conhecimentos de engenharia de software desenvolvidos na Universidade de Brasília (UnB), garantindo um código altamente desacoplado e escalável. Os quatro pilares da POO (Herança, Polimorfismo, Encapsulamento e Abstração) são explorados em conjunto com relações de Composição, Agregação e Dependência.
+## 📌 Índice
 
-# Status do Projeto
+- [Descrição do Projeto](#-descrição-do-projeto)
+- [Status do Projeto](#-status-do-projeto)
+- [Funcionalidades e Recursos](#️-funcionalidades-e-recursos)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [Como Rodar o Projeto](#-como-rodar-o-projeto)
+- [Como Rodar os Testes](#-como-rodar-os-testes)
+- [Autores](#-autores)
+- [Licença](#-licença)
 
-> ✔ MVP Concluído e Funcional ✔
+---
 
-A primeira versão do MVP (Minimum Viable Product) está totalmente implementada e pronta para jogar. Os sistemas principais de combate, gerenciamento de equipes, inventários, taverna, ciclo de dias e condições de Game Over foram testados e refinados para garantir uma experiência de jogo fluida e coesa através de uma Interface de Terminal (TUI) polida.
+## 📖 Descrição do Projeto
 
-# Arquitetura e Funcionalidades Implementadas
+O RpDesk foi planejado para ser um motor de simulação de RPG rodando em linha de comando (TUI). O jogador gerencia os recursos de sua guilda (ouro, reputação, membros e baú de itens) com o objetivo de treinar e manter heróis para realizar expedições lucrativas.
 
-O projeto foi construído sobre uma arquitetura orientada a objetos robusta, apresentando as seguintes funcionalidades:
+O grande diferencial do projeto está na aplicação limpa da arquitetura de software:
+- **Desacoplamento por Eventos**: Comunicação assíncrona orientada a eventos para atualizar estados do jogo.
+- **Polimorfismo em Combates/Encontros**: Estruturação modular de encontros textuais e encontros de combate herdando de classes abstratas comuns.
+- **Fábricas Abstratas**: Criação de heróis, inimigos e itens padronizados através de fábricas estruturadas.
 
-- **Loop Principal de Jogo (Game Loop)**: Permite navegar entre os menus do jogo de forma interativa através do terminal com um HUD Global customizável que exibe a página atual, ouro, reputação e dia corrente em caixas cinzas de caixa dupla estilizadas.
-- **Contratação na Taverna**: A Taverna renova os recrutas a cada dia. O custo básico para contratar um herói é de **50 moedas de ouro** (com escalonamento por reputação), contando com prompt de confirmação de compra antes da transação.
-- **Gerenciamento de Equipes**:
-  - Limite estrito de no máximo **3 equipes ativas** simultâneas.
-  - Tela principal das equipes exibindo a lotação dos membros e o **XP médio dos integrantes** (com base no XP total acumulado: `xp + (nivel - 1) * 100`).
-  - Menu de edição de equipes em formato de tabela elegante com detecção de cancelamento.
-- **Transferência do Baú da Guilda**: Permite transitar itens livremente entre o baú central da guilda e o inventário dos heróis, sinalizando claramente o local de cada herói (`Roster (Disponível)` ou a equipe de expedição em que se encontra alocado).
-- **Combate de Turnos e Expedições**:
-  - Expedições automatizadas acionadas via motor de combate polimórfico com suporte para múltiplos encontros.
-  - Narração compassada em terminal com delay de **1.5 segundos por ação** e prefixagem estruturada (ex: `[ATAQUE]`, `[CURA]`, `[MORTE]`, `[TURNO]`).
-  - Resumo final da batalha renderizado em uma caixa de layout ASCII detalhada exibindo ouro ganho, reputação, XP, sobreviventes e baixas.
-- **Ciclo de Dias e Game Over**:
-  - O jogador pode encerrar o dia para atualizar a vitrine da taverna, pagando uma taxa de manutenção de **10 moedas de ouro**.
-  - O estado de **Game Over** é disparado caso a guilda perca todos os seus heróis (0 heróis no roster e nas equipes) e não tenha ouro suficiente para contratar um novo recruta na taverna (menos de 50 de ouro).
+---
 
-# Tecnologias Utilizadas
+## ⚡ Status do Projeto
 
-- **Python 3.12.3**: Linguagem principal escolhida para aplicar os paradigmas da orientação a objetos.
-- **Pytest**: Suíte de testes automatizados integrada para validação das regras de negócios de XP, combate e missões.
-- **Mermaid / UML**: Utilizados para diagramação lógica e estrutural do sistema (disponíveis na pasta `docs/`).
+> 🟢 **MVP (Minimum Viable Product) Concluído e Funcional**
 
-# Desenvolvedores do Projeto
+A primeira versão está estável e completamente jogável, cobrindo o loop de jogo diário, gerenciamento de equipes, combate de turnos dinâmico, baú de itens da guilda e as condições de Game Over.
 
-- **Pedro Oliveira Melo** - Arquiteto de Software e Desenvolvedor.
+---
 
-# Licença
+## 🛠️ Funcionalidades e Recursos
 
-Copyright (c) 2026 Pedro Oliveira Melo. Todos os direitos reservados.
+*   **Game Loop Interativo**: Menu de terminal polido com exibição de HUD persistente estilizado em caracteres de caixa dupla ASCII (exibindo dia, ouro, reputação e página ativa).
+*   **Recrutamento na Taverna**: A vitrine da taverna se renova diariamente trazendo novos heróis disponíveis para contratação por um custo ajustável segundo a reputação da guilda.
+*   **Gestão de Equipes**:
+    *   Criação e gerenciamento de até **3 equipes ativas** simultâneas de heróis.
+    *   Exibição de nível de experiência médio dos integrantes em tabelas formatadas no terminal.
+*   **Baú Central da Guilda**: Sistema de armazenamento compartilhado que permite mover itens consumíveis e equipamentos de forma bidirecional entre o baú central e o inventário de heróis específicos.
+*   **Combate por Turnos Dinâmico**:
+    *   Execução automática de missões baseada em múltiplos encontros (histórias e batalhas contra inimigos).
+    *   Combates por turnos com narração compassada e tags visuais.
+    *   Resumo final com balanço detalhado de XP, ouro e reputação adquiridos, além do saldo de sobreviventes e baixas.
+*   **Ciclo de Dias e Manutenção**: Mudança de dia que atualiza a taverna ao custo de taxa fixa diária de manutenção da guilda.
+*   **Condição de Game Over**: Disparado caso a guilda perca todos os seus heróis e não tenha moedas suficientes para novas contratações na taverna.
 
-O código-fonte e a arquitetura deste repositório são disponibilizados publicamente de forma exclusiva para fins de visualização acadêmica e avaliação de portfólio. Nenhuma permissão é concedida para a reprodução, modificação, distribuição ou utilização comercial de qualquer parte do projeto sem autorização expressa.
+---
+
+## 📁 Estrutura do Projeto
+
+O código está organizado de forma modular e limpa dentro do diretório `src/`:
+
+```text
+src/
+├── core/         # Gerenciadores de estado, eventos, tempo e salvamento
+├── entidades/    # Classes de heróis, inimigos e inventários
+├── factories/    # Fábricas de heróis, inimigos e itens
+├── gestao/       # Definições de guilda, taverna e missões
+├── itens/        # Equipamentos, consumíveis e definições de itens
+├── motor/        # Motor de batalha e execução de encontros
+└── main.py       # Ponto de entrada do jogo
+```
+
+---
+
+## 💻 Tecnologias Utilizadas
+
+- **Python 3.12.3**
+- **Pytest 9.0.3** (Suite de testes unitários)
+- **Mermaid / UML** (Para mapeamento das relações e arquitetura de classes)
+
+---
+
+## 🚀 Como Rodar o Projeto
+
+### Pré-requisitos
+- Python instalado (versão recomendada: **3.12.x**)
+
+### Passo a Passo
+
+1. **Clone o repositório:**
+   ```bash
+   git clone https://github.com/P3dr0-M3l0/rpdesk.git
+   cd rpdesk
+   ```
+
+2. **Crie e ative um ambiente virtual:**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # No Linux/macOS
+   # ou
+   .venv\Scripts\activate     # No Windows
+   ```
+
+3. **Instale as dependências:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Execute o jogo:**
+   ```bash
+   python src/main.py
+   ```
+
+---
+
+## 🧪 Como Rodar os Testes
+
+Para garantir que todas as regras de negócios, combate e sistemas de XP estejam operacionais:
+
+```bash
+pytest
+```
+
+---
+
+## 👤 Autores
+
+| [<img src="https://avatars.githubusercontent.com/u/223511182?v=4" width=115><br><sub>Pedro Oliveira Melo</sub>](https://github.com/P3dr0-M3l0) |
+| :---: |
+
+---
+
+## 📄 Licença
+
+Copyright © 2026 Pedro Oliveira Melo. Todos os direitos reservados.
+
+O código-fonte e a arquitetura contidos neste repositório são disponibilizados de forma exclusiva para fins de visualização acadêmica e portfólio. Nenhuma permissão é concedida para reprodução, modificação, distribuição ou uso comercial de qualquer parte do projeto sem autorização prévia por escrito.
