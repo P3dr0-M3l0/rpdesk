@@ -45,7 +45,9 @@ class FabricaDeHerois():
             slots_equipados = slots_equipados,
             lista_tracos    = tracos_heroi,
             event_manager   = event_manager_heroi,
-            valor           = valor_heroi
+            valor           = valor_heroi,
+            xp              = 0,
+            nivel           = 1,
             )
         return heroi
 

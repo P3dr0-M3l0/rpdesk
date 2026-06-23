@@ -30,7 +30,6 @@ class EventManager:
         lista_callbacks = self.__inscricoes.get(evento)
         
         if lista_callbacks == None:
-            print(f"\n***\nAviso: '{evento}' foi emitido e não existe nas inscricoes***\n")
             return
         
         for func in lista_callbacks:

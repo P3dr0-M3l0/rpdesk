@@ -4,10 +4,13 @@ from entidades.entidade import Entidade
 
 class Heroi(Entidade):
     
-    def __init__(self, id, nome, atributos, inventario, slots_equipados, event_manager, lista_tracos, valor):
+    def __init__(self, id, nome, atributos, inventario, slots_equipados, event_manager, lista_tracos, valor,
+                 xp: int = 0, nivel: int = 1):
         super().__init__(id, nome, atributos, inventario, slots_equipados, event_manager)
         self.__lista_tracos = lista_tracos
         self.__valor = valor
+        self.__xp    = xp
+        self.__nivel = nivel
         
     
     # =====================================================
@@ -40,13 +43,48 @@ class Heroi(Entidade):
     @property
     def valor(self):
         return self.__valor
-    
+
     @valor.setter
     def valor(self, n):
         if n < 0:
             raise ValueError("O herói não pode ter um valor negativo")
         self.__valor = n
+
+    @property
+    def xp(self):
+        return self.__xp
+
+    @property
+    def nivel(self):
+        return self.__nivel
     
+    # =====================================================
+    # Progressão ------------------------------------------
+    # =====================================================
+    def ganhar_xp(self, valor: int) -> int:
+        """
+        Acumula XP e sobe de nível a cada 100 pontos.
+        A cada nível:
+          - +1 em Força, Destreza, Inteligência e Velocidade
+          - +5 em HP Máximo (e restaura 5 de HP Atual)
+
+        Returns:
+            Número de níveis ganhos nessa chamada.
+        """
+        self.__xp += valor
+        niveis_ganhos = 0
+        while self.__xp >= 100:
+            self.__xp   -= 100
+            self.__nivel += 1
+            niveis_ganhos += 1
+            self._atributos.forca.valor_base        += 1
+            self._atributos.destreza.valor_base     += 1
+            self._atributos.inteligencia.valor_base += 1
+            self._atributos.velocidade.valor_base   += 1
+            self._atributos.hp_max.valor_base       += 5
+            self._atributos.curar(5)
+        return niveis_ganhos
+
     # =====================================================
     # Tracos ----------------------------------------------
     # =====================================================
@@ -159,6 +197,8 @@ class Heroi(Entidade):
             'HR_inventario'     : self._inventario.serializar(),
             'HR_slots_equipados': slot_serializado,
             'HR_lista_tracos'   : tracos_serializados,
-            'HR_valor'          : self.__valor
+            'HR_valor'          : self.__valor,
+            'HR_xp'             : self.__xp,
+            'HR_nivel'          : self.__nivel,
         }
         return dicionario_heroi
