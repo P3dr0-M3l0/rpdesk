@@ -67,15 +67,7 @@ class GameController:
            Opção 3: Abrir o Baú da Guilda
            Opção 4: Ir para a Batalha (Expedições)
            Opção 5: Avançar o Tempo (Encerrar o Dia)
-           - Invoca o GerenciadorDeTempo para passar o turno.
-           - Atualiza o atributo __dia_atual no GameState.
-           - Aciona a Taverna para descartar a vitrine antiga e gerar novos recrutas.
-           - Retorna ao topo do loop, renderizando o Dia (n+1).
-           
            Opção 6: Opções de Sistema
-           - Salvar Jogo: Passa o GameState ao SaveManager, reescreve o slot, avisa "Jogo Salvo" e retorna ao Menu da Guilda.
-           - Salvar e Sair: Executa o salvamento, altera self.__rodando = False (quebra o while) e encerra o script.
-           - Sair (Sem Salvar): Confirma a intenção, altera self.__rodando = False e encerra o script.
         """
         while self.__rodando:
             self.hud_global()
@@ -756,12 +748,25 @@ class GameController:
         input('> [Enter para voltar ao Menu da Guilda]')
 
     def menu_fim_dia(self):
+        """
+        Opção 5: Avançar o Tempo (Encerrar o Dia)
+           - Invoca o GerenciadorDeTempo para passar o turno.
+           - Atualiza o atributo __dia_atual no GameState.
+           - Aciona a Taverna para descartar a vitrine antiga e gerar novos recrutas.
+           - Retorna ao topo do loop, renderizando o Dia (n+1).
+        """
         print("\n> Encerrando o dia...")
         self.__time_manager.avancar_dia()
         print(f"> Um novo amanhecer! Bem-vindo ao Dia {self.__game_state.dia_atual}.")
         time.sleep(1.5)
 
     def menu_sistema(self):
+        """
+        Opção 6: Opções de Sistema
+           - Salvar Jogo: Passa o GameState ao SaveManager, reescreve o slot, avisa "Jogo Salvo" e retorna ao Menu da Guilda.
+           - Salvar e Sair: Executa o salvamento, altera self.__rodando = False (quebra o while) e encerra o script.
+           - Sair (Sem Salvar): Confirma a intenção, altera self.__rodando = False e encerra o script.
+        """
         self.hud_global()
         print("\n\n===--- OPÇÕES DE SISTEMA ---===")
         print("1. Salvar Jogo")
