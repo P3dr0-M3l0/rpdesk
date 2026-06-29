@@ -1,4 +1,4 @@
-from modificador import Modificador
+from entidades.modificador import Modificador
 
 
 class Atributo:

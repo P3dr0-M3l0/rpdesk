@@ -23,7 +23,10 @@ class SaveManager():
         with open(f"{self.__caminho_arquivo}", "w", encoding="utf-8") as arq:
             json.dump(dir_save, arq, indent=4, ensure_ascii=False, cls=UUIDEncoder)
         
-    def carregar_estado_para(self):
+    def carregar_save(self):
         with open(f"{self.__caminho_arquivo}", 'r', encoding="utf-8") as arq:
-            dir_save = json.load(arq)
-        return dir_save
+            try:
+                dict_save = json.load(arq)
+            except json.decoder.JSONDecodeError:
+                return None
+        return dict_save

@@ -1,5 +1,5 @@
 from core.event_manager import EventManager
-from atributo import Atributo
+from entidades.atributo import Atributo
 
 
 class ConjuntoDeAtributos():

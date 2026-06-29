@@ -1,39 +1,52 @@
 import os
 import time
-from game_state import GameState
+import uuid
+from core.time_manager import GerenciadorDeTempo
 from motor.motor_combater import MotorDeCombate
-from gestao.missao import Missao
+from entidades.conjunto_atributos import ConjuntoDeAtributos
+from entidades.inventario import Inventario
+from entidades.atributo import Atributo
+from entidades.heroi import Heroi
 from itens.equipamento import Equipamento
 from itens.consumivel import Consumivel
+from gestao.taverna import Taverna
+from gestao.guilda import Guilda
+from gestao.equipe import Equipe
+from game_state import GameState
+from gestao.missao import Missao
 
 class GameController:
-    def __init__(self, event_manager, save_manager, time_manager, game_state, rodando):
-        self.__event_manager = event_manager
-        self.__save_manager = save_manager
-        self.__time_manager = time_manager
-        self.__game_state = game_state
+    def __init__(self, event_mngr, save_mngr, fbrc_itens, fbrc_herois, fbrc_inimigos, campanha, rodando):
+        self.__fabrica_inimigos = fbrc_inimigos
+        self.__fabrica_herois = fbrc_herois
+        self.__fabrica_itens = fbrc_itens
+        self.__event_manager = event_mngr
+        self.__save_manager = save_mngr
+        self.__campanha = campanha
         self.__rodando = rodando
-       
-    
-    def __gerar_mundo_dados_iniciais(self):
-        # QUANTIA DE OURO QUE O JOGADOR COMEÇA O JOGO
-        ouro_inicial = 100
-        
-        # Definindo o dia do jogo para 1
-        self.__game_state.dia_atual = 1
-        
-        # Definindo a quantia inicial de ouro e a reputação
-        guilda = self.__game_state.guilda
-        guilda.ouro = ouro_inicial
-        guilda.reputacao = 0
-        
-        # Gerando os primeiros heróis na taverna
-        taverna = self.__game_state.taverna
-        taverna.renovar_herois()
-        
+        self.__game_state = None
+        self.__time_manager = None
+
+
     def inicializar(self):
-        self.__gerar_mundo_dados_iniciais()
-    
+        dict_save = self.__save_manager.carregar_save()
+        if dict_save is not None:
+            while True:
+                os.system('cls' if os.name == 'nt' else 'clear') 
+                print("> Você possui um save!")
+                print("> Deseja voltar ao jogo salvo? **Caso não, seu jogo antigo será substituído")
+                confirmar = input("> (S/N): ").strip().upper()
+                if confirmar == 'S':
+                    self.__carregar_save(dict_save)
+                    break
+                elif confirmar == 'N':
+                    self.__gerar_mundo_zero()
+                    break
+                else:
+                    print("> Opção inválida, tente novamente")
+        else:
+            self.__gerar_mundo_zero()
+        
     def __parar_motor(self, dados:dict = None):
         pass
     
@@ -110,7 +123,6 @@ class GameController:
         print(BORDER + "╚" + "═" * 78 + "╝" + RESET)
         print()
 
-    
     def verificar_game_over(self):
         guilda = self.__game_state.guilda
         total_herois = len(guilda.roster_herois) + sum(len(eq.membros) for eq in guilda.equipes_ativas)
@@ -244,6 +256,7 @@ class GameController:
                 print("Entrada Inválida, tente novamente!")
                 time.sleep(1.0)
                 continue
+    
     def menu_equipes(self):
         """
         Opção 2: Gerenciar Equipes e Heróis
@@ -1123,3 +1136,190 @@ class GameController:
             print("> “Você não possui ouro suficiente!”")
             time.sleep(1.5)
             return False
+        
+    def __gerar_mundo_zero(self):
+        # 1. Guilda
+        inventario_guilda = Inventario(capacidade_max=15,
+                                       lista_itens=[],
+                                       event_manager=self.__event_manager)
+        guilda = Guilda(
+            nome              = "Guilda dos Destemidos",
+            ouro              = 100,
+            reputacao         = 0,
+            roster_herois     = [],
+            equipes_ativas    = [],
+            inventario_guilda = inventario_guilda
+        )
+        # 2. Taverna
+        taverna = Taverna(
+            herois_disponiveis = [],
+            fabrica_herois     = self.__fabrica_herois,
+            event_manager      = self.__event_manager
+        )
+        taverna.inicializar_hooks()
+        taverna.renovar_herois()
+        # 3. Game State
+        game_state = GameState(
+            guilda                  = guilda,
+            taverna                 = taverna,
+            dia_atual               = 1,
+            marco_historia          = 0,
+            list_missoes_concluidas = [],
+            campanha                = self.__campanha
+        )
+        self.__game_state = game_state
+        self.__time_manager = GerenciadorDeTempo(self.__game_state, self.__event_manager)
+        
+    def __carregar_save(self, dict_save: dict):
+        def carregar_equipamento(dict_eqpm: dict):
+            id = dict_eqpm['EQPM_id']
+            nome = dict_eqpm['EQPM_nome']
+            valor = dict_eqpm['EQPM_valor']
+            slot = dict_eqpm['EQPM_slot']
+            modificador = dict_eqpm['EQPM_modificador']
+            
+            equipamento = Equipamento(
+                id          = uuid.UUID(id),
+                nome        = nome,
+                valor       = int(valor),
+                slot        = slot,
+                modificador = [modificador[0], int(modificador[1]), modificador[2]]
+            )
+            return equipamento
+        
+        def carregar_consumivel(dict_con: dict):
+            id = dict_con['CON_id']
+            nome = dict_con['CON_nome']
+            valor = dict_con['CON_valor']
+            
+            consumivel = Consumivel(
+                id    = uuid.UUID(id),
+                nome  = nome,
+                valor = int(valor)
+            )
+            return consumivel
+        
+        def carregar_inventario(dict_in: dict):
+            capacidade_max = dict_in['IN_capacidade_max']
+            lista_itens = dict_in['IN_lista_itens']
+            
+            n_lista_itens = []
+            for item in lista_itens:
+                chave = next(iter(item))
+                tipo = chave[:chave.find('_')]
+                if tipo == "EQPM":
+                    n_lista_itens.append(carregar_equipamento(item))
+                elif tipo == "CON":
+                    n_lista_itens.append(carregar_consumivel(item))
+            inventario = Inventario(
+                capacidade_max = capacidade_max,
+                lista_itens    = n_lista_itens,
+                event_manager  = self.__event_manager
+            )
+            return inventario
+        
+        def carregar_slots_equipados(dict_slots: dict, heroi: Heroi):
+            for chave, dict_item in dict_slots.items():
+                eqpm = carregar_equipamento(dict_item)
+                heroi._slots_equipados[chave] = eqpm
+                heroi._aplicar_modificador_item(eqpm)
+        
+        def carregar_atributos(dict_attr: dict):
+            chaves = dict_attr.keys()
+            conj_attrs = {}
+            for chave in chaves:
+                conj_attrs[chave] = Atributo(dict_attr[chave], [])
+            atributos = ConjuntoDeAtributos(
+                forca         = conj_attrs['AT_forca'],
+                destreza      = conj_attrs['AT_destreza'],
+                inteligencia  = conj_attrs['AT_inteligencia'],
+                velocidade    = conj_attrs['AT_velocidade'],
+                hp_max        = conj_attrs['AT_hp_max'],
+                hp_atual      = conj_attrs['AT_hp_atual'],
+                event_manager = self.__event_manager
+            )
+            return atributos
+        
+        def carregar_tracos(dict_tracos: dict):
+            return []
+
+        def carregar_heroi(dict_heroi: dict):
+            saved_hp_atual = dict_heroi['HR_atributos']['AT_hp_atual']
+            heroi = Heroi(
+                id              = uuid.UUID(dict_heroi['HR_id']),
+                nome            = dict_heroi['HR_nome'],
+                atributos       = carregar_atributos(dict_heroi['HR_atributos']),
+                inventario      = carregar_inventario(dict_heroi['HR_inventario']),
+                slots_equipados = {},
+                event_manager   = self.__event_manager,
+                lista_tracos    = carregar_tracos(dict_heroi['HR_lista_tracos']),
+                valor           = dict_heroi['HR_valor'],
+                xp              = dict_heroi['HR_xp'],
+                nivel           = dict_heroi['HR_nivel']
+            )
+            carregar_slots_equipados(dict_heroi['HR_slots_equipados'], heroi)
+            heroi.atributos.hp_atual.valor_base = saved_hp_atual
+            return heroi
+        
+        def carregar_equipe(dict_equipe: dict):
+            membros = []
+            for membro in dict_equipe['EQ_membros']:
+                membros.append(carregar_heroi(membro))
+            equipe = Equipe(
+                nome           = dict_equipe['EQ_nome'],
+                membros        = membros,
+                limite_membros = dict_equipe['EQ_limite_membros']
+            )
+            return equipe
+        
+        dict_guilda = dict_save['GS_guilda']
+        dict_taverna = dict_save['GS_taverna']
+        
+        # ---------
+        # 1. Guilda
+        gu_nome = dict_guilda['GU_nome']
+        gu_ouro = dict_guilda['GU_ouro']
+        gu_rep  = dict_guilda['GU_reputacao']
+        gu_roster = dict_guilda['GU_roster_herois']
+        n_gu_roster = []
+        for dict_heroi in gu_roster:
+            n_gu_roster.append(carregar_heroi(dict_heroi))
+        gu_equipes = dict_guilda['GU_equipes_ativas']
+        n_gu_equipes = []
+        for dict_equipe in gu_equipes:
+            n_gu_equipes.append(carregar_equipe(dict_equipe))
+        bau = carregar_inventario(dict_guilda['GU_inventario_guilda'])
+            
+        guilda = Guilda(
+            nome              = gu_nome,
+            ouro              = gu_ouro,
+            reputacao         = gu_rep,
+            roster_herois     = n_gu_roster,
+            equipes_ativas    = n_gu_equipes,
+            inventario_guilda = bau
+        )
+        
+        # ----------
+        # 2. Taverna
+        herois_disp = []
+        for dict_heroi in dict_taverna['TA_herois_disponiveis']:
+            herois_disp.append(carregar_heroi(dict_heroi))
+        
+        taverna = Taverna(
+            herois_disponiveis = herois_disp,
+            fabrica_herois     = self.__fabrica_herois,
+            event_manager      = self.__event_manager
+        )
+        
+        # ------------
+        # 3. GameState
+        game_state = GameState(
+            guilda                  = guilda,
+            taverna                 = taverna,
+            dia_atual               = int(dict_save['GS_dia_atual']),
+            marco_historia          = dict_save['GS_marco_historia'],
+            list_missoes_concluidas = dict_save['GS_list_missoes_concluidas'],
+            campanha                = self.__campanha
+        )
+        self.__game_state = game_state
+        self.__time_manager = GerenciadorDeTempo(self.__game_state, self.__event_manager)

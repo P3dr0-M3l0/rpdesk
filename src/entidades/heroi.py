@@ -185,10 +185,9 @@ class Heroi(Entidade):
             tracos_serializados.append(traco.serializar())
             
         slot_serializado = {}
-        for key in self._slots_equipados:
-            item = self._slots_equipados.get(key)
-            dict_item = item.serializar()
-            slot_serializado[key] = dict_item
+        for key, item in self._slots_equipados.items():
+            if item:
+                slot_serializado[key] = item.serializar()
         
         dicionario_heroi = {
             'HR_id'             : self._id,

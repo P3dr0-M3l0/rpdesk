@@ -6,8 +6,6 @@ class GameState():
         self.__taverna = taverna
         self.__marco_historia = marco_historia
         self.__list_missoes_concluidas = list_missoes_concluidas
-        # Lista ordenada de instâncias de Missao que compõem a campanha linear.
-        # A missão ativa é inferida via len(list_missoes_concluidas).
         self.__campanha = campanha if campanha is not None else []
     
 

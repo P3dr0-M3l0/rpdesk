@@ -123,48 +123,22 @@ ____/\\\\\\\\\______________________/\\\\\\\\\\\\_______________________________
     fabrica_herois = FabricaDeHerois(fabrica_itens, event_manager)
     fabrica_inimigos = FabricaDeInimigos(fabrica_itens, event_manager)
 
-    # 2. Gestão Central
-    inventario_guilda = Inventario(capacidade_max=15, lista_itens=[], event_manager=event_manager)
-    guilda = Guilda(
-        nome="Guilda dos Destemidos",
-        ouro=100,
-        reputacao=0,
-        roster_herois=[],
-        equipes_ativas=[],
-        inventario_guilda=inventario_guilda
-    )
-    
-    taverna = Taverna(
-        herois_disponiveis=[],
-        fabrica_herois=fabrica_herois,
-        event_manager=event_manager
-    )
-    taverna.inicializar_hooks()
-
-    # 3. Estado de Jogo e Campanha
-    campanha = criar_campanha(fabrica_inimigos, guilda.reputacao)
-    game_state = GameState(
-        guilda=guilda,
-        taverna=taverna,
-        dia_atual=1,
-        marco_historia=0,
-        list_missoes_concluidas=[],
-        campanha=campanha
-    )
-
-    # 4. Gerenciadores e Controle
+    # 2. Gerenciadores e Controle
     # Define o caminho do save file (embora não salve de fato por ser stub/mock no MVP)
     os.makedirs(os.path.join(os.path.dirname(diretorio_src), "saves"), exist_ok=True)
     caminho_save = os.path.join(os.path.dirname(diretorio_src), "saves", "save.json")
     
-    save_manager = SaveManager(caminho_save, event_manager)
-    time_manager = GerenciadorDeTempo(game_state, event_manager)
+    save_manager = SaveManager(caminho_save)
+    
+    campanha = criar_campanha(fabrica_inimigos, 0)
     
     controller = GameController(
-        event_manager=event_manager,
-        save_manager=save_manager,
-        time_manager=time_manager,
-        game_state=game_state,
+        event_mngr= event_manager,
+        save_mngr=save_manager,
+        fbrc_inimigos= fabrica_inimigos,
+        fbrc_herois= fabrica_herois,
+        fbrc_itens= fabrica_itens,
+        campanha=campanha,
         rodando=True
     )
     
