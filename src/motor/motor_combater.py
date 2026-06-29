@@ -62,6 +62,12 @@ class MotorDeCombate:
                 if not herois_vivos or not inimigos_vivos:
                     break
 
+            self.__event_manager.emitir_evento("rodada_finalizada", {
+                'numero_rodada': numero_rodada,
+                'herois': [{'nome': h.nome, 'hp_atual': h.atributos.valor_hp_atual, 'hp_max': h.atributos.valor_hp_max} for h in herois_vivos],
+                'inimigos': [{'nome': i.nome, 'hp_atual': i.atributos.valor_hp_atual, 'hp_max': i.atributos.valor_hp_max} for i in inimigos_vivos]
+            })
+
         resultado = "vitoria" if inimigos_vivos == [] and herois_vivos else "derrota"
 
         xp_acumulado    = self.__calcular_xp(inimigos)
@@ -103,7 +109,6 @@ class MotorDeCombate:
 
         if tipo_acao == 'atacar' and alvo is not None and alvo._vivo:
             dano_bruto = atacante.atributos.valor_forca
-            alvo.receber_dano(dano_bruto, fonte=atacante.nome)
 
             self.__event_manager.emitir_evento("acao_executada", {
                 'origem'  : atacante.nome,
@@ -112,17 +117,19 @@ class MotorDeCombate:
                 'detalhes': {'dano_causado': dano_bruto}
             })
 
+            alvo.receber_dano(dano_bruto, fonte=atacante.nome)
+
         elif tipo_acao == 'curar' and alvo is not None:
             consumivel = self.__encontrar_consumivel(atacante)
             if consumivel is not None:
-                consumivel.usar(alvo)
-                atacante.remover_item(consumivel)
                 self.__event_manager.emitir_evento("acao_executada", {
                     'origem'  : atacante.nome,
                     'acao'    : 'curar',
                     'alvo'    : alvo.nome,
                     'detalhes': {'item_usado': consumivel.nome}
                 })
+                consumivel.usar(alvo)
+                atacante.remover_item(consumivel)
 
     def __encontrar_consumivel(self, entidade):
         """Retorna o primeiro consumível encontrado no inventário da entidade, ou None."""

@@ -142,5 +142,5 @@ class Entidade(ABC):
     def morrer(self):
         
         self._vivo = False
-        self._event_manager.emitir_evento("morrer", {"id_morto": self._id})
+        self._event_manager.emitir_evento("morrer", {"id_morto": self._id, "nome_morto": self._nome})
     

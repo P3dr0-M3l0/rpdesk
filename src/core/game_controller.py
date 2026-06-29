@@ -924,15 +924,22 @@ class GameController:
                 item = detalhes.get('item_usado', '?')
                 fila_narrativa.append(f'  [CURA] {origem} usa {item} em {alvo}.')
 
-        def _cb_morrer(id_morto, **_):
+        def _cb_morrer(id_morto, nome_morto=None, **_):
             # Resolve o nome da entidade pelo ID se possível
-            todos = list(equipe.membros)
-            nome_morto = str(id_morto)
-            for m in todos:
-                if str(m._id) == str(id_morto):
-                    nome_morto = m.nome
-                    break
+            if not nome_morto:
+                todos = list(equipe.membros)
+                nome_morto = str(id_morto)
+                for m in todos:
+                    if str(m._id) == str(id_morto):
+                        nome_morto = m.nome
+                        break
             fila_narrativa.append(f'  [MORTE] 💀 {nome_morto} caiu em batalha!')
+
+        def _cb_rodada_finalizada(numero_rodada, herois, inimigos, **_):
+            status_herois = ", ".join([f"{h['nome']} ({h['hp_atual']}/{h['hp_max']} HP)" for h in herois])
+            status_inimigos = ", ".join([f"{i['nome']} ({i['hp_atual']}/{i['hp_max']} HP)" for i in inimigos])
+            fila_narrativa.append(f"  [STATUS] ── 💚 Aliados: {status_herois} | 💔 Inimigos: {status_inimigos}")
+            fila_narrativa.append("")
 
         def _cb_combate_finalizado(resultado, xp_acumulado, ouro_saqueado, **_):
             fila_narrativa.append('')
@@ -963,6 +970,7 @@ class GameController:
         em.inscrever('rodada_iniciada',           _cb_rodada_iniciada)
         em.inscrever('acao_executada',            _cb_acao_executada)
         em.inscrever('morrer',                    _cb_morrer)
+        em.inscrever('rodada_finalizada',         _cb_rodada_finalizada)
         em.inscrever('combate_finalizado',        _cb_combate_finalizado)
         em.inscrever('missao_finalizada',         _cb_missao_finalizada)
 
@@ -976,6 +984,7 @@ class GameController:
         em.desinscrever('rodada_iniciada',          _cb_rodada_iniciada)
         em.desinscrever('acao_executada',           _cb_acao_executada)
         em.desinscrever('morrer',                   _cb_morrer)
+        em.desinscrever('rodada_finalizada',        _cb_rodada_finalizada)
         em.desinscrever('combate_finalizado',       _cb_combate_finalizado)
         em.desinscrever('missao_finalizada',        _cb_missao_finalizada)
 
@@ -1310,6 +1319,7 @@ class GameController:
             fabrica_herois     = self.__fabrica_herois,
             event_manager      = self.__event_manager
         )
+        taverna.inicializar_hooks()
         
         # ------------
         # 3. GameState
