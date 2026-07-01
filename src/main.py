@@ -25,7 +25,7 @@ from core.event_manager import EventManager
 from core.save_manager import SaveManager
 from core.time_manager import GerenciadorDeTempo
 from core.game_state import GameState
-from core.game_controller import GameController
+from ui.graphical_game_controller import GraphicalGameController
 from gestao.guilda import Guilda
 from gestao.taverna import Taverna
 from gestao.missao import Missao
@@ -132,7 +132,7 @@ ____/\\\\\\\\\______________________/\\\\\\\\\\\\_______________________________
     
     campanha = criar_campanha(fabrica_inimigos, 0)
     
-    controller = GameController(
+    controller = GraphicalGameController(
         event_mngr= event_manager,
         save_mngr=save_manager,
         fbrc_inimigos= fabrica_inimigos,
