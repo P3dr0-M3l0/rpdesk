@@ -4,3 +4,4 @@ pluggy==1.6.0
 Pygments==2.20.0
 pytest==9.0.3
 python==3.12.3
+pygame==2.6.1
