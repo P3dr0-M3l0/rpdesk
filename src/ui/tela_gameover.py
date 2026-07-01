@@ -7,6 +7,7 @@ Exibida solenemente quando a guilda falir (0 heróis e < 50 de ouro).
 Permite voltar ao menu inicial para começar uma nova jornada.
 """
 
+import math
 import pygame
 from ui.tela_base import TelaBase
 from ui.componentes.botao import Botao
@@ -34,8 +35,8 @@ class TelaGameOver(TelaBase):
         pygame.mouse.set_visible(True)
 
     def __voltar_ao_menu(self):
-        if self.__controller and hasattr(self.__controller, "inicializar"):
-            self.__controller.inicializar()
+        if self.__controller and hasattr(self.__controller, "voltar_ao_menu_principal"):
+            self.__controller.voltar_ao_menu_principal()
 
     def lidar_eventos(self, eventos: list) -> None:
         for ev in eventos:
@@ -55,7 +56,7 @@ class TelaGameOver(TelaBase):
 
         # Título "GAME OVER" pulsante com o tempo
         tempo = pygame.time.get_ticks() / 1000.0
-        pulsar = int(180 + 75 * abs(pygame.math.sin(tempo * 3)))
+        pulsar = int(180 + 75 * abs(math.sin(tempo * 3)))
         cor_vermelho_pulsante = (pulsar, 20, 20)
 
         self._renderizar_texto_com_sombra(
@@ -77,12 +78,12 @@ class TelaGameOver(TelaBase):
         )
 
         self._renderizar_texto_com_sombra(
-            surface, "Voce ficou sem herois vivos e com menos de 50 moedas",
+            surface, "Voce ficou sem herois vivos e sem ouro suficiente",
             fonte_peq, cores["texto_creme"],
             (self.obter_x(360), self.obter_y(315))
         )
         self._renderizar_texto_com_sombra(
-            surface, "de ouro para contratar novos aventureiros na taverna.",
+            surface, "para contratar novos aventureiros na taverna.",
             fonte_peq, cores["texto_creme"],
             (self.obter_x(360), self.obter_y(340))
         )

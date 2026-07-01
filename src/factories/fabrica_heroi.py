@@ -34,7 +34,7 @@ class FabricaDeHerois():
         inventario_heroi = self.__gerar_inventario(reputacao)
         slots_equipados = self.__gerar_slots(reputacao)
         tracos_heroi = self.__gerar_tracos(reputacao)
-        valor_heroi = self.__gerar_valor(reputacao)
+        valor_heroi = self.__gerar_valor(reputacao, atributos_heroi, slots_equipados)
         event_manager_heroi = self.__event_manager
 
         heroi = Heroi(
@@ -108,8 +108,17 @@ class FabricaDeHerois():
             slots_equipados[slot] = item
         return slots_equipados
         
-    def __gerar_valor(self, reputacao):
-        return 50 + int(reputacao * 5)
+    def __gerar_valor(self, reputacao, atributos, slots_equipados):
+        # Valor baseado em reputacao + atributos + itens equipados
+        valor_atributos = int(
+            atributos.forca.valor_base +
+            atributos.destreza.valor_base +
+            atributos.inteligencia.valor_base +
+            atributos.velocidade.valor_base +
+            (atributos.hp_max.valor_base / 2)
+        )
+        valor_itens = sum(item.valor for item in slots_equipados.values())
+        return 40 + (reputacao * 6) + valor_atributos + int(valor_itens * 0.5)
     
     def __gerar_tracos(self, reputacao):
         return []

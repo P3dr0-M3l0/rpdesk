@@ -125,7 +125,7 @@ class Entidade(ABC):
                 'fonte': fonte
             }
             )
-        if hp_atual == 0:
+        if hp_atual <= 0:
             self.morrer()
         
     def curar(self, valor):

@@ -98,9 +98,15 @@ class MotorDeCombate:
     # Métodos Privados de Suporte -------------------------
     # =====================================================
     def __montar_fila_iniciativa(self, herois: list, inimigos: list) -> list:
-        """Ordena todas as entidades vivas por velocidade (decrescente)."""
+        """Ordena todas as entidades vivas por velocidade com rolagem de iniciativa randômica (1 a 10)."""
         todas = herois + inimigos
-        return sorted(todas, key=lambda e: e.atributos.valor_velocidade, reverse=True)
+        fila_com_rolagem = []
+        for e in todas:
+            iniciativa = e.atributos.valor_velocidade + random.randint(1, 10)
+            fila_com_rolagem.append((e, iniciativa))
+        
+        fila_com_rolagem.sort(key=lambda item: item[1], reverse=True)
+        return [item[0] for item in fila_com_rolagem]
 
     def __executar_acao(self, acao: dict, atacante) -> None:
         """Interpreta e executa a intenção de ação retornada pela entidade."""
@@ -108,7 +114,9 @@ class MotorDeCombate:
         alvo      = acao.get('alvo')
 
         if tipo_acao == 'atacar' and alvo is not None and alvo._vivo:
-            dano_bruto = atacante.atributos.valor_forca
+            # Dano com variação dinâmica de +-15%
+            variacao = random.uniform(0.85, 1.15)
+            dano_bruto = max(1, int(atacante.atributos.valor_forca * variacao))
 
             self.__event_manager.emitir_evento("acao_executada", {
                 'origem'  : atacante.nome,

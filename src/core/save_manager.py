@@ -24,9 +24,25 @@ class SaveManager():
             json.dump(dir_save, arq, indent=4, ensure_ascii=False, cls=UUIDEncoder)
         
     def carregar_save(self):
-        with open(f"{self.__caminho_arquivo}", 'r', encoding="utf-8") as arq:
+        import os
+        if not os.path.exists(self.__caminho_arquivo):
+            return None
+        try:
+            with open(f"{self.__caminho_arquivo}", 'r', encoding="utf-8") as arq:
+                try:
+                    dict_save = json.load(arq)
+                except json.decoder.JSONDecodeError:
+                    return None
+            return dict_save
+        except FileNotFoundError:
+            return None
+
+    def apagar_save(self):
+        import os
+        if os.path.exists(self.__caminho_arquivo):
             try:
-                dict_save = json.load(arq)
-            except json.decoder.JSONDecodeError:
-                return None
-        return dict_save
+                os.remove(self.__caminho_arquivo)
+                return True
+            except Exception:
+                return False
+        return False

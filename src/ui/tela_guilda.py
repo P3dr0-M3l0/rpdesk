@@ -165,6 +165,22 @@ class TelaGuilda(TelaBase):
                     btn.lidar_evento(ev)
 
     def atualizar(self, dt: float) -> None:
+        # Gerenciamento de botões de navegação no tutorial
+        if self._game_state and self._game_state.tutorial_passo > 0:
+            passo = self._game_state.tutorial_passo
+            for idx, btn in enumerate(self.__botoes):
+                if passo == 1:
+                    btn.ativo = (idx == 0)  # Apenas Taverna
+                elif passo == 3:
+                    btn.ativo = (idx == 1)  # Apenas Equipes e Roster
+                elif passo == 5:
+                    btn.ativo = (idx == 3)  # Apenas Partir p/ Missão
+                else:
+                    btn.ativo = False
+        else:
+            for btn in self.__botoes:
+                btn.ativo = True
+
         # Atualização do status message
         if self.__status_timer > 0:
             self.__status_timer -= dt
@@ -180,8 +196,9 @@ class TelaGuilda(TelaBase):
                     self.__fade_estado = "noite"
                     self.__fade_timer = 2.0  # 2 segundos de noite total
 
-                    # Executa a ação do core (avançar o dia e cobrar taxas)
-                    self.__controller.executar_fim_dia()
+                    # Executa a ação do core (avançar o dia e cobrar taxas) apenas se for avanço manual
+                    if self.__fade_motivo != "expedicao":
+                        self.__controller.executar_fim_dia()
 
             elif self.__fade_estado == "noite":
                 self.__fade_timer -= dt
@@ -194,7 +211,11 @@ class TelaGuilda(TelaBase):
                     self.__fade_alpha = 0.0
                     self.__fade_ativo = False
                     self.__fade_estado = "normal"
-                    self.__mostrar_mensagem("Um novo dia amanheceu! Manutenção cobrada (-10g).", cor_tipo="verde")
+                    
+                    if self.__fade_motivo == "expedicao":
+                        self.__mostrar_mensagem("Um novo dia amanheceu! Herois descansaram e recuperaram HP.", cor_tipo="verde")
+                    else:
+                        self.__mostrar_mensagem("Um novo dia amanheceu! Manutencao cobrada (-10g).", cor_tipo="verde")
 
     def desenhar(self, surface: pygame.Surface) -> None:
         cores = self._assets.CORES
@@ -205,6 +226,29 @@ class TelaGuilda(TelaBase):
 
         # 1. Desenha o HUD superior
         self.__hud.desenhar(surface, self._game_state)
+
+        # Desenha a caixa flutuante do Tutorial
+        if self._game_state and self._game_state.tutorial_passo > 0:
+            passo = self._game_state.tutorial_passo
+            texto_tutorial = ""
+            if passo == 1:
+                texto_tutorial = "Mestre, o salao esta vazio. Clique na Taverna para recrutar seu primeiro heroi!"
+            elif passo == 3:
+                texto_tutorial = "Excelente! Agora va em Equipes e Roster para formar sua primeira equipe."
+            elif passo == 5:
+                texto_tutorial = "Sua equipe esta pronta! Clique em Partir p/ Missao para desbravar as estradas."
+                
+            if texto_tutorial:
+                fonte_tut = self.obter_fonte(24, "vt323")
+                # Caixa de pergaminho amarela na parte inferior do painel direito
+                rect_tut = self.obter_rect(280, 470, 930, 80)
+                self._desenhar_moldura(surface, rect_tut, espessura=2)
+                pygame.draw.rect(surface, (235, 215, 185), rect_tut.inflate(-4, -4)) # Papiro amarelo
+                
+                surf_tut = fonte_tut.render(texto_tutorial, True, (40, 25, 10))
+                tx = rect_tut.x + (rect_tut.width - surf_tut.get_width()) // 2
+                ty = rect_tut.y + (rect_tut.height - surf_tut.get_height()) // 2
+                surface.blit(surf_tut, (tx, ty))
 
         # 2. Desenha o menu esquerdo (Painel menor e mais refinado de largura 210)
         menu_bg_rect = self.obter_rect(20, 90, 210, 580)
@@ -267,32 +311,29 @@ class TelaGuilda(TelaBase):
                          (self.obter_x(1210), self.obter_y(440)), 1)
 
         self._renderizar_texto_com_sombra(
-            surface, "Proxima Expedicao Disponivel:",
+            surface, "Mesa de Gestao de Expedicoes:",
             fonte_corpo, cores["texto_azul"],
             (self.obter_x(280), self.obter_y(460))
         )
 
-        missao = self._game_state.obter_missao_ativa()
-        if missao is None:
+        campanha = self._game_state.campanha
+        if not campanha:
             self._renderizar_texto_com_sombra(
-                surface, "Todas as missoes da campanha foram concluidas!",
-                fonte_corpo, cores["texto_verde"],
+                surface, "Nao ha expedicoes disponiveis hoje.",
+                fonte_corpo, cores["texto_vermelho"],
                 (self.obter_x(280), self.obter_y(495))
             )
         else:
             self._renderizar_texto_com_sombra(
-                surface, f"Missao: {missao.nome} (Dif. {missao.dificuldade})",
+                surface, f"Existem {len(campanha)} expedicoes ativas aguardando ordens.",
                 fonte_corpo, cores["texto_ouro"],
                 (self.obter_x(280), self.obter_y(495))
             )
-            # Descrição da missão
-            desc_linhas = self.__quebrar_texto(missao.descricao, 72)
-            for idx_l, pointer in enumerate(desc_linhas):
-                self._renderizar_texto_com_sombra(
-                    surface, pointer,
-                    fonte_peq, cores["texto_creme"],
-                    (self.obter_x(280), self.obter_y(535 + idx_l * 24))
-                )
+            self._renderizar_texto_com_sombra(
+                surface, "Parta para a missao para selecionar a equipe e a expedicao ideal.",
+                fonte_peq, cores["texto_creme"],
+                (self.obter_x(280), self.obter_y(535))
+            )
 
         # ── Desenha a barra de status de mensagem temporária ────────────
         if self.__status_mensagem:

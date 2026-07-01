@@ -18,6 +18,13 @@ class Guilda:
     def nome(self):
         return self.__nome
     
+    @nome.setter
+    def nome(self, valor):
+        if valor == "" or len(valor) > 20:
+            return False
+        self.__nome = valor
+        return True
+    
     @property
     def ouro(self):
         return self.__ouro

@@ -162,3 +162,14 @@ class Missao:
             'ouro_total'          : ouro_total,
             'reputacao_ganha'     : reputacao,
         }
+
+    def serializar(self) -> dict:
+        return {
+            'nome': self.__nome,
+            'descricao': self.__descricao,
+            'dificuldade': self.__dificuldade,
+            'recompensa_ouro': self.__recompensa_ouro,
+            'recompensa_xp': self.__recompensa_xp,
+            'recompensa_reputacao': self.__recompensa_reputacao,
+            'encontros': [e.serializar() for e in self.__encontros]
+        }

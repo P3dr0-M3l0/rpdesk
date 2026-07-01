@@ -118,6 +118,10 @@ class TelaTaverna(TelaBase):
             if guilda.contratar_heroi(heroi, heroi.valor):
                 taverna.remover_heroi_comprado(heroi)
                 self.__mostrar_mensagem(f"{heroi.nome} foi contratado!", cor_tipo="verde")
+                
+                # Avança tutorial guiado
+                if self._game_state.tutorial_passo == 1:
+                    self._game_state.tutorial_passo = 3
             else:
                 self.__mostrar_mensagem("Ouro insuficiente!", cor_tipo="erro")
 
@@ -171,6 +175,18 @@ class TelaTaverna(TelaBase):
             fonte_tit, cores["texto_ouro"],
             (self.obter_x(50), self.obter_y(85))
         )
+
+        # Caixa do tutorial flutuante
+        if self._game_state and self._game_state.tutorial_passo == 1:
+            fonte_tut = self.obter_fonte(22, "vt323")
+            rect_tut = self.obter_rect(650, 72, 580, 42)
+            self._desenhar_moldura(surface, rect_tut, espessura=2)
+            pygame.draw.rect(surface, (235, 215, 185), rect_tut.inflate(-4, -4)) # Papiro amarelo
+            
+            surf_tut = fonte_tut.render("Contrate seu primeiro heroi para prosseguir no tutorial!", True, (40, 25, 10))
+            tx = rect_tut.x + (rect_tut.width - surf_tut.get_width()) // 2
+            ty = rect_tut.y + (rect_tut.height - surf_tut.get_height()) // 2
+            surface.blit(surf_tut, (tx, ty))
 
         # 2. Desenha a vitrine de 3 heróis
         lista_herois = self._game_state.taverna.obter_vitrine()

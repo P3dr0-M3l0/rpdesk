@@ -41,3 +41,20 @@ class EncontroCombate(Encontro):
             'xp_ganho'         : resultado_combate['xp_acumulado'],
             'ouro_ganho'       : resultado_combate['ouro_saqueado'],
         }
+
+    def serializar(self) -> dict:
+        return {
+            'tipo': 'combate',
+            'inimigos': [
+                {
+                    'nome': i.nome,
+                    'forca': i.atributos.forca.valor_base,
+                    'destreza': i.atributos.destreza.valor_base,
+                    'inteligencia': i.atributos.inteligencia.valor_base,
+                    'velocidade': i.atributos.velocidade.valor_base,
+                    'hp_max': i.atributos.hp_max.valor_base,
+                    'hp_atual': i.atributos.hp_atual.valor_base,
+                    'xp_recompensa': i.xp_recompensa
+                } for i in self.__inimigos
+            ]
+        }

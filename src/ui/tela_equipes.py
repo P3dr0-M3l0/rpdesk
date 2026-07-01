@@ -169,6 +169,10 @@ class TelaEquipes(TelaBase):
         equipe.adicionar_membro(heroi)
         self.__mostrar_mensagem(f"{heroi.nome} alocado em '{equipe.nome}'.", "verde")
 
+        # Avança tutorial guiado
+        if self._game_state.tutorial_passo == 3:
+            self._game_state.tutorial_passo = 5
+
     def __mostrar_mensagem(self, texto, cor_tipo="ouro"):
         self.__status_mensagem = texto
         self.__status_timer = 3.0
@@ -301,6 +305,27 @@ class TelaEquipes(TelaBase):
             if self.__status_timer <= 0:
                 self.__status_mensagem = ""
 
+        # Lógica de controle de botões no tutorial
+        if self._game_state and self._game_state.tutorial_passo > 0:
+            passo = self._game_state.tutorial_passo
+            guilda = self._game_state.guilda
+            tem_equipes = len(guilda.equipes_ativas) > 0
+
+            if passo == 3:
+                if not tem_equipes:
+                    self.__btn_voltar.ativo = False
+                    self.__btn_criar_equipe.ativo = True
+                else:
+                    self.__btn_voltar.ativo = False
+                    self.__btn_criar_equipe.ativo = False
+            elif passo == 5:
+                self.__btn_voltar.ativo = True
+                self.__btn_criar_equipe.ativo = False
+        else:
+            # Sem tutorial: comportamento padrão
+            self.__btn_voltar.ativo = True
+            self.__btn_criar_equipe.ativo = (len(self._game_state.guilda.equipes_ativas) < 3)
+
     # ------------------------------------------------------------------
     # Renderização da Tela
     # ------------------------------------------------------------------
@@ -324,6 +349,32 @@ class TelaEquipes(TelaBase):
             fonte_tit, cores["texto_ouro"],
             (self.obter_x(50), self.obter_y(85))
         )
+
+        # Caixa do tutorial flutuante
+        if self._game_state and self._game_state.tutorial_passo > 0:
+            passo = self._game_state.tutorial_passo
+            guilda = self._game_state.guilda
+            tem_equipes = len(guilda.equipes_ativas) > 0
+            
+            texto_tut = ""
+            if passo == 3:
+                if not tem_equipes:
+                    texto_tut = "Clique em 'Criar Nova Equipe' na base direita para fundar seu primeiro grupo!"
+                else:
+                    texto_tut = "Arraste o heroi da reserva na esquerda para a equipe ativa ou selecione-o e clique em + Alocar!"
+            elif passo == 5:
+                texto_tut = "Excelente! Sua equipe esta pronta. Clique em 'Voltar p/ Guilda' para retornar ao salao."
+
+            if texto_tut:
+                fonte_tut = self.obter_fonte(22, "vt323")
+                rect_tut = self.obter_rect(580, 72, 650, 42)
+                self._desenhar_moldura(surface, rect_tut, espessura=2)
+                pygame.draw.rect(surface, (235, 215, 185), rect_tut.inflate(-4, -4)) # Papiro amarelo
+                
+                surf_tut = fonte_tut.render(texto_tut, True, (40, 25, 10))
+                tx = rect_tut.x + (rect_tut.width - surf_tut.get_width()) // 2
+                ty = rect_tut.y + (rect_tut.height - surf_tut.get_height()) // 2
+                surface.blit(surf_tut, (tx, ty))
 
         # 2. Painel Esquerdo: Roster da Guilda (Reserva)
         roster_panel = self.obter_rect(40, 120, 520, 500)

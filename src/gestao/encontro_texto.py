@@ -73,3 +73,10 @@ class EncontroTexto(Encontro):
             'xp_ganho'         : 0,
             'ouro_ganho'       : ouro_ganho,
         }
+
+    def serializar(self) -> dict:
+        return {
+            'tipo': 'texto',
+            'narrativa': self.__narrativa,
+            'efeitos': self.__efeitos
+        }

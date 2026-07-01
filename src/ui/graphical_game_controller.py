@@ -20,6 +20,8 @@ from core.game_controller import GameController
 from ui.asset_manager import AssetManager
 from ui.gerenciador_telas import GerenciadorTelas
 from ui.tela_inicial import TelaInicial
+from ui.tela_splash import TelaSplash
+from ui.tela_introducao import TelaIntroducao
 from ui.tela_guilda import TelaGuilda
 from ui.tela_gameover import TelaGameOver
 from core.time_manager import GerenciadorDeTempo
@@ -87,14 +89,15 @@ class GraphicalGameController(GameController):
         dict_save  = save_mngr.carregar_save()
         tem_save   = dict_save is not None
 
-        # Tela de entrada visual (substitui o prompt de terminal)
-        tela_inicial = TelaInicial(
+        # Tela de Splash inicial (carregamento estético)
+        tela_splash = TelaSplash(
             gerenciador=self.__gerenciador,
+            controller=self,
             tem_save=tem_save,
             cb_carregar=lambda: self.__carregar_e_ir_hub(dict_save),
-            cb_novo=lambda: self.__novo_jogo_e_ir_hub(),
+            cb_novo=lambda: self.__novo_jogo_e_ir_introducao(),
         )
-        self.__gerenciador.trocar(tela_inicial)
+        self.__gerenciador.trocar(tela_splash)
 
     # ------------------------------------------------------------------
     # Callbacks da tela inicial → transição para o Hub
@@ -104,10 +107,19 @@ class GraphicalGameController(GameController):
         self._GameController__carregar_save(dict_save)
         self.__ir_hub()
 
-    def __novo_jogo_e_ir_hub(self):
-        """Gera um mundo do zero e vai para a TelaGuilda."""
+    def __novo_jogo_e_ir_introducao(self):
+        """Gera um mundo do zero e vai para a TelaIntroducao (páginas do livro)."""
         self._GameController__gerar_mundo_zero()
-        self.__ir_hub()
+        game_state = self._GameController__game_state
+        
+        # Transiciona para a tela de introdução
+        tela_intro = TelaIntroducao(
+            gerenciador=self.__gerenciador,
+            game_state=game_state,
+            controller=self,
+            cb_finalizar=lambda: self.__ir_hub()
+        )
+        self.__gerenciador.trocar(tela_intro)
 
     def __ir_hub(self):
         """Troca para a tela principal da guilda."""
@@ -152,6 +164,9 @@ class GraphicalGameController(GameController):
                 cura_val = int(heroi.atributos.valor_hp_max * 0.2)
                 heroi.curar(cura_val)
 
+        # Gera novas missões procedurais dinâmicas para o novo dia
+        self.gerar_novas_missoes_diarias()
+
         # Checa game over após a passagem do dia
         self.verificar_game_over()
 
@@ -171,19 +186,24 @@ class GraphicalGameController(GameController):
             gerenciador=self.__gerenciador,
             tem_save=tem_save,
             cb_carregar=lambda: self.__carregar_e_ir_hub(dict_save),
-            cb_novo=lambda: self.__novo_jogo_e_ir_hub(),
+            cb_novo=lambda: self.__novo_jogo_e_ir_introducao(),
         )
         self.__gerenciador.trocar(tela_inicial)
 
     def aplicar_consequencias_missao(self, resultado_expedicao, missao, equipe):
         """
         Aplica as recompensas, XP, mortes e avanço de campanha pós-expedição.
+        Remove permanentemente os falecidos das listas da guilda para o Garbage Collector.
         """
         guilda = self._GameController__game_state.guilda
         resultado = resultado_expedicao['resultado']
         herois_mortos = resultado_expedicao.get('herois_mortos', [])
 
         if resultado == 'derrota':
+            # Remove os heróis mortos do roster
+            for heroi_morto in equipe.membros:
+                if heroi_morto in guilda.roster_herois:
+                    guilda.roster_herois.remove(heroi_morto)
             # Remove a equipe inteira
             if equipe in guilda.equipes_ativas:
                 guilda.equipes_ativas.remove(equipe)
@@ -207,8 +227,10 @@ class GraphicalGameController(GameController):
             for heroi in sobreviventes:
                 heroi.ganhar_xp(xp_total)
 
-            # Remove heróis mortos de suas equipes
+            # Remove heróis mortos de suas equipes e do roster
             for heroi_morto in herois_mortos:
+                if heroi_morto in guilda.roster_herois:
+                    guilda.roster_herois.remove(heroi_morto)
                 for eq in guilda.equipes_ativas:
                     if heroi_morto in eq.membros:
                         eq.membros.remove(heroi_morto)
@@ -229,11 +251,31 @@ class GraphicalGameController(GameController):
         """Verifica se as condições de falência da guilda foram atingidas."""
         game_state = self._GameController__game_state
         guilda     = game_state.guilda
-        total_herois = len(guilda.roster_herois) + sum(len(eq.membros) for eq in guilda.equipes_ativas)
+        
+        # Conta apenas heróis VIVOS no roster e equipes
+        total_herois_vivos = len([h for h in guilda.roster_herois if h._vivo]) + sum(
+            len([m for m in eq.membros if m._vivo]) for eq in guilda.equipes_ativas
+        )
 
-        if total_herois == 0 and guilda.ouro < 50:
+        # Menor custo teórico com base na reputação caso precise renovar no dia seguinte
+        reputacao = guilda.reputacao
+        menor_custo_teorico = 45 + int(reputacao * 6) + 9
+
+        vitrine = game_state.taverna.obter_vitrine()
+        if vitrine:
+            menor_custo = min(h.valor for h in vitrine)
+        else:
+            menor_custo = menor_custo_teorico
+
+        menor_custo_real = min(menor_custo, menor_custo_teorico)
+
+        if total_herois_vivos == 0 and guilda.ouro < menor_custo_real:
+            save_mngr = self._GameController__save_manager
+            save_mngr.apagar_save()
+            
             tela_gameover = TelaGameOver(self.__gerenciador, game_state, self)
             self.__gerenciador.trocar(tela_gameover)
             return True
+        return False
         return False
 

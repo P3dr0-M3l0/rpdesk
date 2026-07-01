@@ -14,6 +14,9 @@ from gestao.guilda import Guilda
 from gestao.equipe import Equipe
 from game_state import GameState
 from gestao.missao import Missao
+from gestao.encontro_texto import EncontroTexto
+from gestao.encontro_combate import EncontroCombate
+from entidades.inimigo import Inimigo
 
 class GameController:
     def __init__(self, event_mngr, save_mngr, fbrc_itens, fbrc_herois, fbrc_inimigos, campanha, rodando):
@@ -26,6 +29,9 @@ class GameController:
         self.__rodando = rodando
         self.__game_state = None
         self.__time_manager = None
+        
+        from factories.fabrica_missao import FabricaDeMissoes
+        self.__fabrica_missoes = FabricaDeMissoes(self.__fabrica_inimigos, self.__fabrica_itens)
 
 
     def inicializar(self):
@@ -1146,6 +1152,17 @@ class GameController:
             time.sleep(1.5)
             return False
         
+    def gerar_novas_missoes_diarias(self):
+        """Gera 3 missões procedurais escalonadas com base na reputação e no dia."""
+        if not self.__game_state:
+            return
+        rep = self.__game_state.guilda.reputacao
+        dia = self.__game_state.dia_atual
+        novas_missoes = []
+        for i in range(3):
+            novas_missoes.append(self.__fabrica_missoes.gerar_missao_procedural(rep, dia, i))
+        self.__game_state.definir_campanha(novas_missoes)
+
     def __gerar_mundo_zero(self):
         # 1. Guilda
         inventario_guilda = Inventario(capacidade_max=15,
@@ -1174,10 +1191,14 @@ class GameController:
             dia_atual               = 1,
             marco_historia          = 0,
             list_missoes_concluidas = [],
-            campanha                = self.__campanha
+            campanha                = []
         )
         self.__game_state = game_state
+        self.__game_state.tutorial_passo = 1
         self.__time_manager = GerenciadorDeTempo(self.__game_state, self.__event_manager)
+        
+        # Gera as missões do dia 1
+        self.gerar_novas_missoes_diarias()
         
     def __carregar_save(self, dict_save: dict):
         def carregar_equipamento(dict_eqpm: dict):
@@ -1288,6 +1309,10 @@ class GameController:
         # 1. Guilda
         gu_nome = dict_guilda['GU_nome']
         gu_ouro = dict_guilda['GU_ouro']
+        # ---------
+        # 1. Guilda
+        gu_nome = dict_guilda['GU_nome']
+        gu_ouro = dict_guilda['GU_ouro']
         gu_rep  = dict_guilda['GU_reputacao']
         gu_roster = dict_guilda['GU_roster_herois']
         n_gu_roster = []
@@ -1321,6 +1346,54 @@ class GameController:
         )
         taverna.inicializar_hooks()
         
+        # Carrega a campanha do save de forma segura
+        campanha_carregada = []
+        if 'GS_campanha' in dict_save:
+            def carregar_encontro(dict_e: dict):
+                tipo = dict_e['tipo']
+                if tipo == 'texto':
+                    return EncontroTexto(narrativa=dict_e['narrativa'], efeitos=dict_e['efeitos'])
+                elif tipo == 'combate':
+                    inimigos = []
+                    for dict_i in dict_e['inimigos']:
+                        attrs = ConjuntoDeAtributos(
+                            forca=Atributo(dict_i['forca'], []),
+                            destreza=Atributo(dict_i['destreza'], []),
+                            inteligencia=Atributo(dict_i['inteligencia'], []),
+                            velocidade=Atributo(dict_i['velocidade'], []),
+                            hp_max=Atributo(dict_i['hp_max'], []),
+                            hp_atual=Atributo(dict_i['hp_atual'], []),
+                            event_manager=self.__event_manager
+                        )
+                        inimigo = Inimigo(
+                            id=uuid.uuid4(),
+                            nome=dict_i['nome'],
+                            atributos=attrs,
+                            inventario=Inventario(5, [], self.__event_manager),
+                            slots_equipados={},
+                            event_manager=self.__event_manager,
+                            xp_recompensa=dict_i['xp_recompensa']
+                        )
+                        inimigos.append(inimigo)
+                    return EncontroCombate(inimigos)
+            
+            def carregar_missao(dict_m: dict):
+                encontros = [carregar_encontro(e) for e in dict_m['encontros']]
+                return Missao(
+                    nome=dict_m['nome'],
+                    descricao=dict_m['descricao'],
+                    dificuldade=dict_m['dificuldade'],
+                    encontros=encontros,
+                    recompensa_ouro=dict_m['recompensa_ouro'],
+                    recompensa_xp=dict_m['recompensa_xp'],
+                    recompensa_reputacao=dict_m['recompensa_reputacao']
+                )
+            
+            for dict_m in dict_save['GS_campanha']:
+                campanha_carregada.append(carregar_missao(dict_m))
+        else:
+            campanha_carregada = self.__campanha
+
         # ------------
         # 3. GameState
         game_state = GameState(
@@ -1329,7 +1402,8 @@ class GameController:
             dia_atual               = int(dict_save['GS_dia_atual']),
             marco_historia          = dict_save['GS_marco_historia'],
             list_missoes_concluidas = dict_save['GS_list_missoes_concluidas'],
-            campanha                = self.__campanha
+            campanha                = campanha_carregada
         )
         self.__game_state = game_state
+        self.__game_state.tutorial_passo = dict_save.get('GS_tutorial_passo', 0)
         self.__time_manager = GerenciadorDeTempo(self.__game_state, self.__event_manager)
